@@ -1,0 +1,19 @@
+# OpenAPI Generator Ignore File
+# This file tells the OpenAPI generator which files to preserve during regeneration.
+#
+# Note: The current generation script only copies *.ts files from temp directories
+# to src/generated/, so these files are already protected. This file exists for
+# consistency with packages/sdk/ and as a safeguard if the generation approach changes.
+
+# Package configuration
+package.json
+tsconfig.json
+tsup.config.ts
+.gitignore
+
+# Documentation
+README.md
+LICENSE
+
+# Hand-written source files (curated exports)
+src/index.ts
