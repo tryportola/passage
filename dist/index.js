@@ -18,6 +18,7 @@ __export(api_exports, {
   ApplicationListItemProductTypeEnum: () => ApplicationListItemProductTypeEnum,
   ApplicationRequestProductTypeEnum: () => ApplicationRequestProductTypeEnum,
   ApplicationResponseDataProductTypeEnum: () => ApplicationResponseDataProductTypeEnum,
+  ApplicationResponseDataWalletTypeEnum: () => ApplicationResponseDataWalletTypeEnum,
   ApplicationStatus: () => ApplicationStatus,
   ApplicationsApi: () => ApplicationsApi,
   ApplicationsApiAxiosParamCreator: () => ApplicationsApiAxiosParamCreator,
@@ -216,6 +217,10 @@ var ApplicationResponseDataProductTypeEnum = {
   Mortgage: "mortgage",
   Personal: "personal",
   Business: "business"
+};
+var ApplicationResponseDataWalletTypeEnum = {
+  BorrowerSelfCustody: "borrower_self_custody",
+  NeobankCustodial: "neobank_custodial"
 };
 var ApplicationStatus = {
   Draft: "DRAFT",

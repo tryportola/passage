@@ -310,6 +310,24 @@ export interface ApplicationResponseData {
      */
     'borrowerWalletChain'?: string;
     /**
+     * Type of wallet custody (neobank only). - borrower_self_custody: Borrower controls their own wallet - neobank_custodial: Neobank manages wallet on behalf of borrower 
+     * @type {string}
+     * @memberof ApplicationResponseData
+     */
+    'walletType'?: ApplicationResponseDataWalletTypeEnum;
+    /**
+     * When unsigned loan documents were sent to the borrower (neobank only). Null if documents have not yet been sent. 
+     * @type {string}
+     * @memberof ApplicationResponseData
+     */
+    'docsSentAt'?: string | null;
+    /**
+     * When the borrower signed the loan documents (neobank only). Null if documents have not yet been signed. 
+     * @type {string}
+     * @memberof ApplicationResponseData
+     */
+    'docsSignedAt'?: string | null;
+    /**
      * 
      * @type {ApplicationResponseDataEncryptedPayload}
      * @memberof ApplicationResponseData
@@ -357,6 +375,12 @@ export const ApplicationResponseDataProductTypeEnum = {
 } as const;
 
 export type ApplicationResponseDataProductTypeEnum = typeof ApplicationResponseDataProductTypeEnum[keyof typeof ApplicationResponseDataProductTypeEnum];
+export const ApplicationResponseDataWalletTypeEnum = {
+    BorrowerSelfCustody: 'borrower_self_custody',
+    NeobankCustodial: 'neobank_custodial'
+} as const;
+
+export type ApplicationResponseDataWalletTypeEnum = typeof ApplicationResponseDataWalletTypeEnum[keyof typeof ApplicationResponseDataWalletTypeEnum];
 
 /**
  * Lender-specific encrypted payload (lender only)

@@ -65,6 +65,7 @@ export type {
   ApplicationRequestProductTypeEnum,
   ApplicationResponse,
   ApplicationResponseData,
+  ApplicationResponseDataWalletTypeEnum,
   ApplicationSubmitResponse,
   ApplicationSubmitResponseData,
   ApplicationStatus,
