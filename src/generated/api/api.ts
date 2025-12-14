@@ -1795,6 +1795,12 @@ export interface EncryptedOffer {
      */
     'offerId': string;
     /**
+     * Type of offer: - prequalified: Initial soft-pull offer before hard credit check - final: Firm offer after hard credit pull and full underwriting 
+     * @type {string}
+     * @memberof EncryptedOffer
+     */
+    'offerType': EncryptedOfferOfferTypeEnum;
+    /**
      * 
      * @type {string}
      * @memberof EncryptedOffer
@@ -1843,6 +1849,12 @@ export interface EncryptedOffer {
      */
     'externalId'?: string | null;
     /**
+     * For final offers only: ID of the prequalified offer this final offer originated from. Useful for showing the borrower the progression from prequal to final offer. Null for prequalified offers. 
+     * @type {string}
+     * @memberof EncryptedOffer
+     */
+    'prequalifiedOfferId'?: string | null;
+    /**
      * 
      * @type {string}
      * @memberof EncryptedOffer
@@ -1862,6 +1874,12 @@ export interface EncryptedOffer {
     'updatedAt'?: string;
 }
 
+export const EncryptedOfferOfferTypeEnum = {
+    Prequalified: 'prequalified',
+    Final: 'final'
+} as const;
+
+export type EncryptedOfferOfferTypeEnum = typeof EncryptedOfferOfferTypeEnum[keyof typeof EncryptedOfferOfferTypeEnum];
 
 /**
  * 
@@ -5137,6 +5155,12 @@ export interface OfferDetailResponseDataOffer {
      */
     'offerId': string;
     /**
+     * Type of offer: - prequalified: Initial soft-pull offer before hard credit check - final: Firm offer after hard credit pull and full underwriting 
+     * @type {string}
+     * @memberof OfferDetailResponseDataOffer
+     */
+    'offerType': OfferDetailResponseDataOfferOfferTypeEnum;
+    /**
      * 
      * @type {string}
      * @memberof OfferDetailResponseDataOffer
@@ -5185,6 +5209,12 @@ export interface OfferDetailResponseDataOffer {
      */
     'externalId'?: string | null;
     /**
+     * For final offers only: ID of the prequalified offer this final offer originated from. Useful for showing the borrower the progression from prequal to final offer. Null for prequalified offers. 
+     * @type {string}
+     * @memberof OfferDetailResponseDataOffer
+     */
+    'prequalifiedOfferId'?: string | null;
+    /**
      * 
      * @type {string}
      * @memberof OfferDetailResponseDataOffer
@@ -5210,6 +5240,12 @@ export interface OfferDetailResponseDataOffer {
     'application'?: OfferDetailResponseDataOfferAllOfApplication;
 }
 
+export const OfferDetailResponseDataOfferOfferTypeEnum = {
+    Prequalified: 'prequalified',
+    Final: 'final'
+} as const;
+
+export type OfferDetailResponseDataOfferOfferTypeEnum = typeof OfferDetailResponseDataOfferOfferTypeEnum[keyof typeof OfferDetailResponseDataOfferOfferTypeEnum];
 
 /**
  * Basic application details

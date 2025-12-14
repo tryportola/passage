@@ -77,6 +77,7 @@ export type {
 
   // Offer types
   EncryptedOffer,
+  EncryptedOfferOfferTypeEnum,
   EncryptedOffersResponse,
   EncryptedOffersResponseData,
   EncryptedOffersResponseDataLendersInner,

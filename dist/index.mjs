@@ -29,6 +29,7 @@ __export(api_exports, {
   DeclineApplication200ResponseDataStatusEnum: () => DeclineApplication200ResponseDataStatusEnum,
   DeclinedApplicationsResponseDataApplicationsInnerProductTypeEnum: () => DeclinedApplicationsResponseDataApplicationsInnerProductTypeEnum,
   EmergencyRevokeKeyRequestReasonEnum: () => EmergencyRevokeKeyRequestReasonEnum,
+  EncryptedOfferOfferTypeEnum: () => EncryptedOfferOfferTypeEnum,
   EncryptedOffersResponseDataOfferTypeEnum: () => EncryptedOffersResponseDataOfferTypeEnum,
   EntityDiscoveryApi: () => EntityDiscoveryApi,
   EntityDiscoveryApiAxiosParamCreator: () => EntityDiscoveryApiAxiosParamCreator,
@@ -72,6 +73,7 @@ __export(api_exports, {
   OfferAcceptanceResponseDataNextStepsActionEnum: () => OfferAcceptanceResponseDataNextStepsActionEnum,
   OfferAcceptanceResponseDataOfferTypeEnum: () => OfferAcceptanceResponseDataOfferTypeEnum,
   OfferAcceptanceResponseDataStatusEnum: () => OfferAcceptanceResponseDataStatusEnum,
+  OfferDetailResponseDataOfferOfferTypeEnum: () => OfferDetailResponseDataOfferOfferTypeEnum,
   OfferStatus: () => OfferStatus,
   OfferSubmissionResponseDataOfferTypeEnum: () => OfferSubmissionResponseDataOfferTypeEnum,
   OffersApi: () => OffersApi,
@@ -261,6 +263,10 @@ var EmergencyRevokeKeyRequestReasonEnum = {
   Lost: "LOST",
   Rotation: "ROTATION"
 };
+var EncryptedOfferOfferTypeEnum = {
+  Prequalified: "prequalified",
+  Final: "final"
+};
 var EncryptedOffersResponseDataOfferTypeEnum = {
   Prequalified: "prequalified",
   Final: "final"
@@ -353,6 +359,10 @@ var OfferAcceptanceResponseDataStatusEnum = {
 var OfferAcceptanceResponseDataNextStepsActionEnum = {
   HardPull: "HARD_PULL",
   DocumentSigning: "DOCUMENT_SIGNING"
+};
+var OfferDetailResponseDataOfferOfferTypeEnum = {
+  Prequalified: "prequalified",
+  Final: "final"
 };
 var OfferStatus = {
   Pending: "PENDING",
