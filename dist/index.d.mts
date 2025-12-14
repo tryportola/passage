@@ -6088,6 +6088,7 @@ declare const RepaymentStatus: {
     readonly Processing: "PROCESSING";
     readonly Completed: "COMPLETED";
     readonly Failed: "FAILED";
+    readonly Refunded: "REFUNDED";
 };
 type RepaymentStatus = typeof RepaymentStatus[keyof typeof RepaymentStatus];
 /**

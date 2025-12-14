@@ -387,7 +387,8 @@ var RepaymentStatus = {
   Pending: "PENDING",
   Processing: "PROCESSING",
   Completed: "COMPLETED",
-  Failed: "FAILED"
+  Failed: "FAILED",
+  Refunded: "REFUNDED"
 };
 var SDXTokenRequestActionEnum = {
   Upload: "upload",

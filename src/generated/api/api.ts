@@ -6071,7 +6071,8 @@ export const RepaymentStatus = {
     Pending: 'PENDING',
     Processing: 'PROCESSING',
     Completed: 'COMPLETED',
-    Failed: 'FAILED'
+    Failed: 'FAILED',
+    Refunded: 'REFUNDED'
 } as const;
 
 export type RepaymentStatus = typeof RepaymentStatus[keyof typeof RepaymentStatus];
