@@ -2180,23 +2180,53 @@ export interface FundingRecord {
      */
     'disbursedAt'?: string;
     /**
+     * Timestamp when Bridge transfer was initiated
+     * @type {string}
+     * @memberof FundingRecord
+     */
+    'initiatedAt'?: string | null;
+    /**
+     * Timestamp when funds fully arrived at recipient
+     * @type {string}
+     * @memberof FundingRecord
+     */
+    'completedAt'?: string | null;
+    /**
      * Timestamp when funding failed (if applicable)
      * @type {string}
      * @memberof FundingRecord
      */
-    'failedAt'?: string;
+    'failedAt'?: string | null;
     /**
      * Reason for failure or cancellation
      * @type {string}
      * @memberof FundingRecord
      */
-    'failureReason'?: string;
+    'failureReason'?: string | null;
     /**
      * Bridge transfer ID for tracking disbursement
      * @type {string}
      * @memberof FundingRecord
      */
     'bridgeTransferId'?: string;
+    /**
+     * Blockchain network used for disbursement
+     * @type {string}
+     * @memberof FundingRecord
+     */
+    'blockchain'?: string;
+    /**
+     * On-chain transaction hash for the disbursement
+     * @type {string}
+     * @memberof FundingRecord
+     */
+    'txHash'?: string;
+    /**
+     * Wallet address where funds were disbursed
+     * @type {string}
+     * @memberof FundingRecord
+     */
+    'recipientAddress'?: string;
     /**
      * Record creation timestamp
      * @type {string}
@@ -2222,6 +2252,7 @@ export const FundingRecordStatusEnum = {
     Consented: 'CONSENTED',
     Disbursing: 'DISBURSING',
     Disbursed: 'DISBURSED',
+    Funded: 'FUNDED',
     Failed: 'FAILED',
     Cancelled: 'CANCELLED'
 } as const;

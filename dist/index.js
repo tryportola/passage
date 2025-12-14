@@ -282,6 +282,7 @@ var FundingRecordStatusEnum = {
   Consented: "CONSENTED",
   Disbursing: "DISBURSING",
   Disbursed: "DISBURSED",
+  Funded: "FUNDED",
   Failed: "FAILED",
   Cancelled: "CANCELLED"
 };

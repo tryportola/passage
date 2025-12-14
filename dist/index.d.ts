@@ -2255,23 +2255,53 @@ interface FundingRecord {
      */
     'disbursedAt'?: string;
     /**
+     * Timestamp when Bridge transfer was initiated
+     * @type {string}
+     * @memberof FundingRecord
+     */
+    'initiatedAt'?: string | null;
+    /**
+     * Timestamp when funds fully arrived at recipient
+     * @type {string}
+     * @memberof FundingRecord
+     */
+    'completedAt'?: string | null;
+    /**
      * Timestamp when funding failed (if applicable)
      * @type {string}
      * @memberof FundingRecord
      */
-    'failedAt'?: string;
+    'failedAt'?: string | null;
     /**
      * Reason for failure or cancellation
      * @type {string}
      * @memberof FundingRecord
      */
-    'failureReason'?: string;
+    'failureReason'?: string | null;
     /**
      * Bridge transfer ID for tracking disbursement
      * @type {string}
      * @memberof FundingRecord
      */
     'bridgeTransferId'?: string;
+    /**
+     * Blockchain network used for disbursement
+     * @type {string}
+     * @memberof FundingRecord
+     */
+    'blockchain'?: string;
+    /**
+     * On-chain transaction hash for the disbursement
+     * @type {string}
+     * @memberof FundingRecord
+     */
+    'txHash'?: string;
+    /**
+     * Wallet address where funds were disbursed
+     * @type {string}
+     * @memberof FundingRecord
+     */
+    'recipientAddress'?: string;
     /**
      * Record creation timestamp
      * @type {string}
@@ -2296,6 +2326,7 @@ declare const FundingRecordStatusEnum: {
     readonly Consented: "CONSENTED";
     readonly Disbursing: "DISBURSING";
     readonly Disbursed: "DISBURSED";
+    readonly Funded: "FUNDED";
     readonly Failed: "FAILED";
     readonly Cancelled: "CANCELLED";
 };
@@ -14334,4 +14365,4 @@ declare namespace index {
   export { index_BlobsApi as BlobsApi, index_BlobsApiAxiosParamCreator as BlobsApiAxiosParamCreator, type index_BlobsApiDownloadBlobRequest as BlobsApiDownloadBlobRequest, index_BlobsApiFactory as BlobsApiFactory, index_BlobsApiFp as BlobsApiFp, type index_BlobsApiInterface as BlobsApiInterface, type index_BlobsApiUploadBlobRequest as BlobsApiUploadBlobRequest, index_Configuration as Configuration, type index_ConfigurationParameters as ConfigurationParameters, type index_ErrorResponse as ErrorResponse, index_HealthApi as HealthApi, index_HealthApiAxiosParamCreator as HealthApiAxiosParamCreator, index_HealthApiFactory as HealthApiFactory, index_HealthApiFp as HealthApiFp, type index_HealthApiInterface as HealthApiInterface, type index_HealthCheckResponse as HealthCheckResponse, type index_HealthCheckResponseChecks as HealthCheckResponseChecks, type index_HealthCheckResponseStatusEnum as HealthCheckResponseStatusEnum, type index_LivenessCheck200Response as LivenessCheck200Response, type index_ReadinessCheck200Response as ReadinessCheck200Response, type index_ReadinessCheck200ResponseChecks as ReadinessCheck200ResponseChecks, type index_ReadinessCheck503Response as ReadinessCheck503Response, type index_ReadinessCheck503ResponseChecks as ReadinessCheck503ResponseChecks, type index_UploadBlob201Response as UploadBlob201Response, type index_UploadResponse as UploadResponse };
 }
 
-export { type ApplicationListItem, type ApplicationRequest, type ApplicationRequestEncryptedPayloadsInner, ApplicationRequestProductTypeEnum, type ApplicationResponse, type ApplicationResponseData, ApplicationResponseDataWalletTypeEnum, ApplicationStatus, type ApplicationStatusUpdateResponse, type ApplicationStatusUpdateResponseData, type ApplicationSubmitResponse, type ApplicationSubmitResponseData, ApplicationsApi, AttestationApi, BlobsApi, Configuration$1 as Configuration, type CreateSigningSessionRequest, type DraftSubmitRequest, type DraftSubmitRequestPerLenderKycHandlesInner, type DraftSubmitResponse, type DraftSubmitResponseData, type EncryptedOffer, EncryptedOfferOfferTypeEnum, type EncryptedOffersResponse, type EncryptedOffersResponseData, type EncryptedOffersResponseDataLendersInner, EntityDiscoveryApi, FundingApi, HealthApi, type KYCHandleRequest, type KYCHandleResponse, type KYCHandleResponseData, KeyManagementApi, type LenderDetailResponse, type LenderDetailResponseData, type LenderListItem, type LenderListResponse, type LenderListResponseData, type ListApplications200Response, type ListApplications200ResponseData, type Loan, type LoanListResponse, type LoanListResponseData, type LoanResponse, LoanStatus, LoansApi, type NeobankAccountResponse, type NeobankAccountResponseData, NeobankSelfServiceApi, type OfferAcceptanceRequest, type OfferAcceptanceRequestBorrowerWallet, OfferAcceptanceRequestBorrowerWalletChainEnum, OfferAcceptanceRequestBorrowerWalletWalletTypeEnum, type OfferAcceptanceRequestCommunicationPreferences, type OfferAcceptanceRequestHardPullConsent, type OfferAcceptanceResponse, type OfferAcceptanceResponseData, OffersApi, index$1 as PassageAPI, Configuration$1 as PassageConfiguration, index as PassageSDX, type PaymentScheduleResponse, type PaymentScheduleResponseData, PlatformApi, QueueApi, SDXApi, type SDXTokenRequest, SDXTokenRequestActionEnum, SDXTokenRequestDocumentTypeEnum, type SDXTokenResponse, type SDXTokenResponseData, type UploadBlob201Response as SDXUploadResponse, type UploadResponse as SDXUploadResponseAlt, type ScheduledPayment, SigningApi, type SigningSessionCreateResponse, type SigningSessionCreateResponseData, type SigningSessionStatusResponse, type SigningSessionStatusResponseData, type SigningSessionsListResponse, type SigningSessionsListResponseData, type SigningSessionsListResponseDataSessionsInner, TransfersApi, TreasuryApi, type WebhookConfigResponse, type WebhookConfigResponseData, type WebhookSecretRotateResponse, type WebhookSecretRotateResponseData, type WebhookTestResponse, type WebhookTestResponseData, type WebhookUrlUpdateResponse, type WebhookUrlUpdateResponseData };
+export { type AllWalletsData, type AllWalletsResponse, type ApplicationListItem, type ApplicationRequest, type ApplicationRequestEncryptedPayloadsInner, ApplicationRequestProductTypeEnum, type ApplicationResponse, type ApplicationResponseData, ApplicationResponseDataWalletTypeEnum, ApplicationStatus, type ApplicationStatusUpdateResponse, type ApplicationStatusUpdateResponseData, type ApplicationSubmitResponse, type ApplicationSubmitResponseData, ApplicationsApi, AttestationApi, BlobsApi, Configuration$1 as Configuration, type ConsentToFunding200Response, type ConsentToFunding200ResponseData, type CreateSigningSessionRequest, type DeclineFunding200Response, type DeclineFunding200ResponseData, type DeclineFundingRequest, type DraftSubmitRequest, type DraftSubmitRequestPerLenderKycHandlesInner, type DraftSubmitResponse, type DraftSubmitResponseData, type EncryptedOffer, EncryptedOfferOfferTypeEnum, type EncryptedOffersResponse, type EncryptedOffersResponseData, type EncryptedOffersResponseDataLendersInner, EntityDiscoveryApi, FundingApi, type FundingRecord, type FundingRecordApplication, FundingRecordStatusEnum, type GetFundingById200Response, type GetPendingFundings200Response, HealthApi, type KYCHandleRequest, type KYCHandleResponse, type KYCHandleResponseData, KeyManagementApi, type LenderDetailResponse, type LenderDetailResponseData, type LenderListItem, type LenderListResponse, type LenderListResponseData, type ListApplications200Response, type ListApplications200ResponseData, type Loan, type LoanListResponse, type LoanListResponseData, type LoanResponse, LoanStatus, LoansApi, type NeobankAccountResponse, type NeobankAccountResponseData, NeobankSelfServiceApi, type OfferAcceptanceRequest, type OfferAcceptanceRequestBorrowerWallet, OfferAcceptanceRequestBorrowerWalletChainEnum, OfferAcceptanceRequestBorrowerWalletWalletTypeEnum, type OfferAcceptanceRequestCommunicationPreferences, type OfferAcceptanceRequestHardPullConsent, type OfferAcceptanceResponse, type OfferAcceptanceResponseData, OffersApi, index$1 as PassageAPI, Configuration$1 as PassageConfiguration, index as PassageSDX, type PaymentScheduleResponse, type PaymentScheduleResponseData, PlatformApi, QueueApi, SDXApi, type SDXTokenRequest, SDXTokenRequestActionEnum, SDXTokenRequestDocumentTypeEnum, type SDXTokenResponse, type SDXTokenResponseData, type UploadBlob201Response as SDXUploadResponse, type UploadResponse as SDXUploadResponseAlt, type ScheduledPayment, SigningApi, type SigningSessionCreateResponse, type SigningSessionCreateResponseData, type SigningSessionStatusResponse, type SigningSessionStatusResponseData, type SigningSessionsListResponse, type SigningSessionsListResponseData, type SigningSessionsListResponseDataSessionsInner, type SweepPreviewResponse, type SweepRequest, type SweepResponse, TransfersApi, TreasuryApi, type TreasuryCustomer, TreasuryCustomerKybStatusEnum, type TreasuryOverviewData, type TreasuryOverviewResponse, type TreasuryTransaction, TreasuryTransactionTypeEnum, type TreasuryTransactionsResponse, type TreasuryTransactionsResponseData, type TreasuryVirtualAccount, TreasuryVirtualAccountStatusEnum, type TreasuryWallet, type WebhookConfigResponse, type WebhookConfigResponseData, type WebhookSecretRotateResponse, type WebhookSecretRotateResponseData, type WebhookTestResponse, type WebhookTestResponseData, type WebhookUrlUpdateResponse, type WebhookUrlUpdateResponseData };
