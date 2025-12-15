@@ -99,6 +99,7 @@ export type {
   PaymentScheduleResponse,
   PaymentScheduleResponseData,
   ScheduledPayment,
+  RepaymentStatus,
 
   // Lender types
   LenderListResponse,

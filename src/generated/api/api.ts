@@ -181,6 +181,18 @@ export interface ApplicationRequest {
      * @memberof ApplicationRequest
      */
     'draft'?: boolean;
+    /**
+     * Borrower\'s wallet address for disbursement (optional - for wallet-first apps). Use this when the borrower\'s wallet is known at application time. 
+     * @type {string}
+     * @memberof ApplicationRequest
+     */
+    'borrowerWalletAddress'?: string;
+    /**
+     * Blockchain chain for borrower\'s wallet
+     * @type {string}
+     * @memberof ApplicationRequest
+     */
+    'borrowerWalletChain'?: ApplicationRequestBorrowerWalletChainEnum;
 }
 
 export const ApplicationRequestProductTypeEnum = {
@@ -192,6 +204,16 @@ export const ApplicationRequestProductTypeEnum = {
 } as const;
 
 export type ApplicationRequestProductTypeEnum = typeof ApplicationRequestProductTypeEnum[keyof typeof ApplicationRequestProductTypeEnum];
+export const ApplicationRequestBorrowerWalletChainEnum = {
+    Base: 'base',
+    Ethereum: 'ethereum',
+    Polygon: 'polygon',
+    Arbitrum: 'arbitrum',
+    Optimism: 'optimism',
+    Solana: 'solana'
+} as const;
+
+export type ApplicationRequestBorrowerWalletChainEnum = typeof ApplicationRequestBorrowerWalletChainEnum[keyof typeof ApplicationRequestBorrowerWalletChainEnum];
 
 /**
  * 
@@ -2290,6 +2312,137 @@ export interface FundingRecordApplication {
      * @memberof FundingRecordApplication
      */
     'neobankId'?: string;
+}
+/**
+ * 
+ * @export
+ * @interface GetAccountStats200Response
+ */
+export interface GetAccountStats200Response {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof GetAccountStats200Response
+     */
+    'success': boolean;
+    /**
+     * 
+     * @type {GetAccountStats200ResponseData}
+     * @memberof GetAccountStats200Response
+     */
+    'data': GetAccountStats200ResponseData;
+}
+/**
+ * 
+ * @export
+ * @interface GetAccountStats200ResponseData
+ */
+export interface GetAccountStats200ResponseData {
+    /**
+     * 
+     * @type {GetAccountStats200ResponseDataApplications}
+     * @memberof GetAccountStats200ResponseData
+     */
+    'applications'?: GetAccountStats200ResponseDataApplications;
+    /**
+     * 
+     * @type {GetAccountStats200ResponseDataLoans}
+     * @memberof GetAccountStats200ResponseData
+     */
+    'loans'?: GetAccountStats200ResponseDataLoans;
+    /**
+     * 
+     * @type {GetAccountStats200ResponseDataBorrowers}
+     * @memberof GetAccountStats200ResponseData
+     */
+    'borrowers'?: GetAccountStats200ResponseDataBorrowers;
+    /**
+     * Timestamp when stats were calculated
+     * @type {string}
+     * @memberof GetAccountStats200ResponseData
+     */
+    'asOf'?: string;
+}
+/**
+ * Application statistics (neobank only)
+ * @export
+ * @interface GetAccountStats200ResponseDataApplications
+ */
+export interface GetAccountStats200ResponseDataApplications {
+    /**
+     * Total number of applications
+     * @type {number}
+     * @memberof GetAccountStats200ResponseDataApplications
+     */
+    'total'?: number;
+    /**
+     * Count of applications by status
+     * @type {{ [key: string]: number; }}
+     * @memberof GetAccountStats200ResponseDataApplications
+     */
+    'byStatus'?: { [key: string]: number; };
+}
+/**
+ * Borrower statistics (neobank only)
+ * @export
+ * @interface GetAccountStats200ResponseDataBorrowers
+ */
+export interface GetAccountStats200ResponseDataBorrowers {
+    /**
+     * Unique borrowers (by wallet address)
+     * @type {number}
+     * @memberof GetAccountStats200ResponseDataBorrowers
+     */
+    'total'?: number;
+}
+/**
+ * Loan statistics
+ * @export
+ * @interface GetAccountStats200ResponseDataLoans
+ */
+export interface GetAccountStats200ResponseDataLoans {
+    /**
+     * 
+     * @type {number}
+     * @memberof GetAccountStats200ResponseDataLoans
+     */
+    'total'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetAccountStats200ResponseDataLoans
+     */
+    'active'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetAccountStats200ResponseDataLoans
+     */
+    'paidOff'?: number;
+    /**
+     * Lender only
+     * @type {number}
+     * @memberof GetAccountStats200ResponseDataLoans
+     */
+    'defaulted'?: number;
+    /**
+     * Total amount disbursed (decimal string)
+     * @type {string}
+     * @memberof GetAccountStats200ResponseDataLoans
+     */
+    'totalDisbursed'?: string;
+    /**
+     * Total outstanding principal (decimal string)
+     * @type {string}
+     * @memberof GetAccountStats200ResponseDataLoans
+     */
+    'outstandingPrincipal'?: string;
+    /**
+     * Total amount repaid (lender only)
+     * @type {string}
+     * @memberof GetAccountStats200ResponseDataLoans
+     */
+    'totalRepaid'?: string;
 }
 /**
  * 
@@ -8629,16 +8782,18 @@ export const ApplicationsApiAxiosParamCreator = function (configuration?: Config
             };
         },
         /**
-         * Retrieve list of applications. - Neobanks: Returns only their own applications - Lenders: Returns applications routed to them 
+         * Retrieve list of applications. - Neobanks: Returns only their own applications - Lenders: Returns applications routed to them  Neobanks can filter by `externalId` (their user reference) or `borrowerWalletAddress` (wallet address) to efficiently retrieve applications for a specific borrower. 
          * @summary List applications
          * @param {ApplicationStatus} [status] Filter by application status
          * @param {ListApplicationsProductTypeEnum} [productType] Filter by product type
+         * @param {string} [externalId] Filter by application\&#39;s external reference ID (neobank-only). Exact match. Use this when you have your own user ID system. 
+         * @param {string} [borrowerWalletAddress] Filter by borrower\&#39;s wallet address (case-insensitive, neobank-only). Use this for wallet-first applications. 
          * @param {number} [limit] Number of results to return
          * @param {number} [offset] Number of results to skip
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listApplications: async (status?: ApplicationStatus, productType?: ListApplicationsProductTypeEnum, limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listApplications: async (status?: ApplicationStatus, productType?: ListApplicationsProductTypeEnum, externalId?: string, borrowerWalletAddress?: string, limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/applications`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -8660,6 +8815,14 @@ export const ApplicationsApiAxiosParamCreator = function (configuration?: Config
 
             if (productType !== undefined) {
                 localVarQueryParameter['productType'] = productType;
+            }
+
+            if (externalId !== undefined) {
+                localVarQueryParameter['externalId'] = externalId;
+            }
+
+            if (borrowerWalletAddress !== undefined) {
+                localVarQueryParameter['borrowerWalletAddress'] = borrowerWalletAddress;
             }
 
             if (limit !== undefined) {
@@ -8868,17 +9031,19 @@ export const ApplicationsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Retrieve list of applications. - Neobanks: Returns only their own applications - Lenders: Returns applications routed to them 
+         * Retrieve list of applications. - Neobanks: Returns only their own applications - Lenders: Returns applications routed to them  Neobanks can filter by `externalId` (their user reference) or `borrowerWalletAddress` (wallet address) to efficiently retrieve applications for a specific borrower. 
          * @summary List applications
          * @param {ApplicationStatus} [status] Filter by application status
          * @param {ListApplicationsProductTypeEnum} [productType] Filter by product type
+         * @param {string} [externalId] Filter by application\&#39;s external reference ID (neobank-only). Exact match. Use this when you have your own user ID system. 
+         * @param {string} [borrowerWalletAddress] Filter by borrower\&#39;s wallet address (case-insensitive, neobank-only). Use this for wallet-first applications. 
          * @param {number} [limit] Number of results to return
          * @param {number} [offset] Number of results to skip
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listApplications(status?: ApplicationStatus, productType?: ListApplicationsProductTypeEnum, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListApplications200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listApplications(status, productType, limit, offset, options);
+        async listApplications(status?: ApplicationStatus, productType?: ListApplicationsProductTypeEnum, externalId?: string, borrowerWalletAddress?: string, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListApplications200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listApplications(status, productType, externalId, borrowerWalletAddress, limit, offset, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ApplicationsApi.listApplications']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -8975,14 +9140,14 @@ export const ApplicationsApiFactory = function (configuration?: Configuration, b
             return localVarFp.getHardPullConsent(requestParameters.applicationId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Retrieve list of applications. - Neobanks: Returns only their own applications - Lenders: Returns applications routed to them 
+         * Retrieve list of applications. - Neobanks: Returns only their own applications - Lenders: Returns applications routed to them  Neobanks can filter by `externalId` (their user reference) or `borrowerWalletAddress` (wallet address) to efficiently retrieve applications for a specific borrower. 
          * @summary List applications
          * @param {ApplicationsApiListApplicationsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         listApplications(requestParameters: ApplicationsApiListApplicationsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<ListApplications200Response> {
-            return localVarFp.listApplications(requestParameters.status, requestParameters.productType, requestParameters.limit, requestParameters.offset, options).then((request) => request(axios, basePath));
+            return localVarFp.listApplications(requestParameters.status, requestParameters.productType, requestParameters.externalId, requestParameters.borrowerWalletAddress, requestParameters.limit, requestParameters.offset, options).then((request) => request(axios, basePath));
         },
         /**
          * Neobank submits an encrypted loan application packet. The application is broadcast to all configured lenders supporting the product type. 
@@ -9064,7 +9229,7 @@ export interface ApplicationsApiInterface {
     getHardPullConsent(requestParameters: ApplicationsApiGetHardPullConsentRequest, options?: RawAxiosRequestConfig): AxiosPromise<GetHardPullConsent200Response>;
 
     /**
-     * Retrieve list of applications. - Neobanks: Returns only their own applications - Lenders: Returns applications routed to them 
+     * Retrieve list of applications. - Neobanks: Returns only their own applications - Lenders: Returns applications routed to them  Neobanks can filter by `externalId` (their user reference) or `borrowerWalletAddress` (wallet address) to efficiently retrieve applications for a specific borrower. 
      * @summary List applications
      * @param {ApplicationsApiListApplicationsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
@@ -9187,6 +9352,20 @@ export interface ApplicationsApiListApplicationsRequest {
      * @memberof ApplicationsApiListApplications
      */
     readonly productType?: ListApplicationsProductTypeEnum
+
+    /**
+     * Filter by application\&#39;s external reference ID (neobank-only). Exact match. Use this when you have your own user ID system. 
+     * @type {string}
+     * @memberof ApplicationsApiListApplications
+     */
+    readonly externalId?: string
+
+    /**
+     * Filter by borrower\&#39;s wallet address (case-insensitive, neobank-only). Use this for wallet-first applications. 
+     * @type {string}
+     * @memberof ApplicationsApiListApplications
+     */
+    readonly borrowerWalletAddress?: string
 
     /**
      * Number of results to return
@@ -9315,7 +9494,7 @@ export class ApplicationsApi extends BaseAPI implements ApplicationsApiInterface
     }
 
     /**
-     * Retrieve list of applications. - Neobanks: Returns only their own applications - Lenders: Returns applications routed to them 
+     * Retrieve list of applications. - Neobanks: Returns only their own applications - Lenders: Returns applications routed to them  Neobanks can filter by `externalId` (their user reference) or `borrowerWalletAddress` (wallet address) to efficiently retrieve applications for a specific borrower. 
      * @summary List applications
      * @param {ApplicationsApiListApplicationsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
@@ -9323,7 +9502,7 @@ export class ApplicationsApi extends BaseAPI implements ApplicationsApiInterface
      * @memberof ApplicationsApi
      */
     public listApplications(requestParameters: ApplicationsApiListApplicationsRequest = {}, options?: RawAxiosRequestConfig) {
-        return ApplicationsApiFp(this.configuration).listApplications(requestParameters.status, requestParameters.productType, requestParameters.limit, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
+        return ApplicationsApiFp(this.configuration).listApplications(requestParameters.status, requestParameters.productType, requestParameters.externalId, requestParameters.borrowerWalletAddress, requestParameters.limit, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -12260,15 +12439,17 @@ export const LoansApiAxiosParamCreator = function (configuration?: Configuration
             };
         },
         /**
-         * List loans for the authenticated lender with pagination and filtering. Lender-only endpoint. 
+         * List loans for the authenticated entity with pagination and filtering.  **For Lenders:** Returns loans they funded. **For Neobanks:** Returns loans from applications they originated.  Neobanks can filter by `externalId` (their user reference) or `borrowerAddress` (wallet address) to efficiently retrieve loans for a specific borrower. 
          * @summary List loans
          * @param {LoanStatus} [status] Filter by loan status
+         * @param {string} [externalId] Filter by application\&#39;s external reference ID (neobank-only). Exact match. Use this when you have your own user ID system. 
+         * @param {string} [borrowerAddress] Filter by borrower\&#39;s wallet address (case-insensitive, neobank-only). Use this for wallet-first applications. 
          * @param {number} [limit] Maximum number of results (default 50, max 100)
          * @param {number} [offset] Pagination offset
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listLoans: async (status?: LoanStatus, limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listLoans: async (status?: LoanStatus, externalId?: string, borrowerAddress?: string, limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/loans`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -12286,6 +12467,14 @@ export const LoansApiAxiosParamCreator = function (configuration?: Configuration
 
             if (status !== undefined) {
                 localVarQueryParameter['status'] = status;
+            }
+
+            if (externalId !== undefined) {
+                localVarQueryParameter['externalId'] = externalId;
+            }
+
+            if (borrowerAddress !== undefined) {
+                localVarQueryParameter['borrowerAddress'] = borrowerAddress;
             }
 
             if (limit !== undefined) {
@@ -12485,16 +12674,18 @@ export const LoansApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * List loans for the authenticated lender with pagination and filtering. Lender-only endpoint. 
+         * List loans for the authenticated entity with pagination and filtering.  **For Lenders:** Returns loans they funded. **For Neobanks:** Returns loans from applications they originated.  Neobanks can filter by `externalId` (their user reference) or `borrowerAddress` (wallet address) to efficiently retrieve loans for a specific borrower. 
          * @summary List loans
          * @param {LoanStatus} [status] Filter by loan status
+         * @param {string} [externalId] Filter by application\&#39;s external reference ID (neobank-only). Exact match. Use this when you have your own user ID system. 
+         * @param {string} [borrowerAddress] Filter by borrower\&#39;s wallet address (case-insensitive, neobank-only). Use this for wallet-first applications. 
          * @param {number} [limit] Maximum number of results (default 50, max 100)
          * @param {number} [offset] Pagination offset
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listLoans(status?: LoanStatus, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LoanListResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listLoans(status, limit, offset, options);
+        async listLoans(status?: LoanStatus, externalId?: string, borrowerAddress?: string, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LoanListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listLoans(status, externalId, borrowerAddress, limit, offset, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LoansApi.listLoans']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -12598,14 +12789,14 @@ export const LoansApiFactory = function (configuration?: Configuration, basePath
             return localVarFp.listLoanRepayments(requestParameters.loanId, requestParameters.status, requestParameters.limit, requestParameters.offset, requestParameters.source, options).then((request) => request(axios, basePath));
         },
         /**
-         * List loans for the authenticated lender with pagination and filtering. Lender-only endpoint. 
+         * List loans for the authenticated entity with pagination and filtering.  **For Lenders:** Returns loans they funded. **For Neobanks:** Returns loans from applications they originated.  Neobanks can filter by `externalId` (their user reference) or `borrowerAddress` (wallet address) to efficiently retrieve loans for a specific borrower. 
          * @summary List loans
          * @param {LoansApiListLoansRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         listLoans(requestParameters: LoansApiListLoansRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<LoanListResponse> {
-            return localVarFp.listLoans(requestParameters.status, requestParameters.limit, requestParameters.offset, options).then((request) => request(axios, basePath));
+            return localVarFp.listLoans(requestParameters.status, requestParameters.externalId, requestParameters.borrowerAddress, requestParameters.limit, requestParameters.offset, options).then((request) => request(axios, basePath));
         },
         /**
          * Sweep balance from a loan\'s wallet to the master treasury wallet. Supports sweeping a specific amount or the full balance. Uses idempotency keys to prevent duplicate transfers. Lender-only endpoint. 
@@ -12697,7 +12888,7 @@ export interface LoansApiInterface {
     listLoanRepayments(requestParameters: LoansApiListLoanRepaymentsRequest, options?: RawAxiosRequestConfig): AxiosPromise<ListLoanRepayments200Response>;
 
     /**
-     * List loans for the authenticated lender with pagination and filtering. Lender-only endpoint. 
+     * List loans for the authenticated entity with pagination and filtering.  **For Lenders:** Returns loans they funded. **For Neobanks:** Returns loans from applications they originated.  Neobanks can filter by `externalId` (their user reference) or `borrowerAddress` (wallet address) to efficiently retrieve loans for a specific borrower. 
      * @summary List loans
      * @param {LoansApiListLoansRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
@@ -12861,6 +13052,20 @@ export interface LoansApiListLoansRequest {
     readonly status?: LoanStatus
 
     /**
+     * Filter by application\&#39;s external reference ID (neobank-only). Exact match. Use this when you have your own user ID system. 
+     * @type {string}
+     * @memberof LoansApiListLoans
+     */
+    readonly externalId?: string
+
+    /**
+     * Filter by borrower\&#39;s wallet address (case-insensitive, neobank-only). Use this for wallet-first applications. 
+     * @type {string}
+     * @memberof LoansApiListLoans
+     */
+    readonly borrowerAddress?: string
+
+    /**
      * Maximum number of results (default 50, max 100)
      * @type {number}
      * @memberof LoansApiListLoans
@@ -12997,7 +13202,7 @@ export class LoansApi extends BaseAPI implements LoansApiInterface {
     }
 
     /**
-     * List loans for the authenticated lender with pagination and filtering. Lender-only endpoint. 
+     * List loans for the authenticated entity with pagination and filtering.  **For Lenders:** Returns loans they funded. **For Neobanks:** Returns loans from applications they originated.  Neobanks can filter by `externalId` (their user reference) or `borrowerAddress` (wallet address) to efficiently retrieve loans for a specific borrower. 
      * @summary List loans
      * @param {LoansApiListLoansRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
@@ -13005,7 +13210,7 @@ export class LoansApi extends BaseAPI implements LoansApiInterface {
      * @memberof LoansApi
      */
     public listLoans(requestParameters: LoansApiListLoansRequest = {}, options?: RawAxiosRequestConfig) {
-        return LoansApiFp(this.configuration).listLoans(requestParameters.status, requestParameters.limit, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
+        return LoansApiFp(this.configuration).listLoans(requestParameters.status, requestParameters.externalId, requestParameters.borrowerAddress, requestParameters.limit, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -13057,6 +13262,39 @@ export const NeobankSelfServiceApiAxiosParamCreator = function (configuration?: 
          */
         getAccountInfo: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/me`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "X-API-Key", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Get aggregated statistics for the authenticated entity. Works for both lenders and neobanks - returns relevant metrics based on entity type.  **For Neobanks:** Returns application counts by status, loan statistics, and borrower counts. **For Lenders:** Returns loan portfolio statistics including funded amounts and repayment totals.  Response includes Cache-Control header (60 second TTL) for performance. 
+         * @summary Get account statistics
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAccountStats: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/me/stats`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -13243,6 +13481,18 @@ export const NeobankSelfServiceApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Get aggregated statistics for the authenticated entity. Works for both lenders and neobanks - returns relevant metrics based on entity type.  **For Neobanks:** Returns application counts by status, loan statistics, and borrower counts. **For Lenders:** Returns loan portfolio statistics including funded amounts and repayment totals.  Response includes Cache-Control header (60 second TTL) for performance. 
+         * @summary Get account statistics
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAccountStats(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetAccountStats200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAccountStats(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['NeobankSelfServiceApi.getAccountStats']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Get current webhook configuration including URL and whether a secret is set. The webhook secret is never returned in full - only a masked preview. NEOBANK ONLY - Requires neobank API key authentication. 
          * @summary Get webhook configuration
          * @param {*} [options] Override http request option.
@@ -13311,6 +13561,15 @@ export const NeobankSelfServiceApiFactory = function (configuration?: Configurat
             return localVarFp.getAccountInfo(options).then((request) => request(axios, basePath));
         },
         /**
+         * Get aggregated statistics for the authenticated entity. Works for both lenders and neobanks - returns relevant metrics based on entity type.  **For Neobanks:** Returns application counts by status, loan statistics, and borrower counts. **For Lenders:** Returns loan portfolio statistics including funded amounts and repayment totals.  Response includes Cache-Control header (60 second TTL) for performance. 
+         * @summary Get account statistics
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAccountStats(options?: RawAxiosRequestConfig): AxiosPromise<GetAccountStats200Response> {
+            return localVarFp.getAccountStats(options).then((request) => request(axios, basePath));
+        },
+        /**
          * Get current webhook configuration including URL and whether a secret is set. The webhook secret is never returned in full - only a masked preview. NEOBANK ONLY - Requires neobank API key authentication. 
          * @summary Get webhook configuration
          * @param {*} [options] Override http request option.
@@ -13364,6 +13623,15 @@ export interface NeobankSelfServiceApiInterface {
      * @memberof NeobankSelfServiceApiInterface
      */
     getAccountInfo(options?: RawAxiosRequestConfig): AxiosPromise<NeobankAccountResponse>;
+
+    /**
+     * Get aggregated statistics for the authenticated entity. Works for both lenders and neobanks - returns relevant metrics based on entity type.  **For Neobanks:** Returns application counts by status, loan statistics, and borrower counts. **For Lenders:** Returns loan portfolio statistics including funded amounts and repayment totals.  Response includes Cache-Control header (60 second TTL) for performance. 
+     * @summary Get account statistics
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof NeobankSelfServiceApiInterface
+     */
+    getAccountStats(options?: RawAxiosRequestConfig): AxiosPromise<GetAccountStats200Response>;
 
     /**
      * Get current webhook configuration including URL and whether a secret is set. The webhook secret is never returned in full - only a masked preview. NEOBANK ONLY - Requires neobank API key authentication. 
@@ -13434,6 +13702,17 @@ export class NeobankSelfServiceApi extends BaseAPI implements NeobankSelfService
      */
     public getAccountInfo(options?: RawAxiosRequestConfig) {
         return NeobankSelfServiceApiFp(this.configuration).getAccountInfo(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get aggregated statistics for the authenticated entity. Works for both lenders and neobanks - returns relevant metrics based on entity type.  **For Neobanks:** Returns application counts by status, loan statistics, and borrower counts. **For Lenders:** Returns loan portfolio statistics including funded amounts and repayment totals.  Response includes Cache-Control header (60 second TTL) for performance. 
+     * @summary Get account statistics
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof NeobankSelfServiceApi
+     */
+    public getAccountStats(options?: RawAxiosRequestConfig) {
+        return NeobankSelfServiceApiFp(this.configuration).getAccountStats(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
