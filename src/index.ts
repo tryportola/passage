@@ -106,6 +106,30 @@ export type {
   LenderListItem,
   LenderDetailResponse,
   LenderDetailResponseData,
+  LenderDetail,
+  LenderDetailPublicKey,
+  LenderPublicKeyResponse,
+  LenderPublicKeyResponseData,
+
+  // Neobank types (for lender discovery)
+  NeobankListResponse,
+  NeobankListResponseData,
+  NeobankListItem,
+  NeobankListResponseDataPagination,
+  NeobankDetailResponse,
+  NeobankDetailResponseData,
+  NeobankPublicKeyResponse,
+  NeobankPublicKeyResponseData,
+
+  // Batch public key operations
+  BatchGetLenderPublicKeysRequest,
+  BatchGetNeobankPublicKeysRequest,
+  BatchLenderKeysResponse,
+  BatchLenderKeysResponseData,
+  BatchLenderKeysResponseDataKeysValue,
+  BatchNeobankKeysResponse,
+  BatchNeobankKeysResponseData,
+  BatchNeobankKeysResponseDataKeysValue,
 
   // Draft submission types
   DraftSubmitRequest,
@@ -125,15 +149,37 @@ export type {
   WebhookSecretRotateResponse,
   WebhookSecretRotateResponseData,
 
+  // Key Management types
+  KeyRotationResponse,
+  KeyRotationResponseData,
+  KeyRotationResponseDataStatusEnum,
+  KeyRevokeResponse,
+  KeyRevokeResponseData,
+  KeyRevokeResponseDataStatusEnum,
+  KeyHistoryResponse,
+  KeyHistoryResponseData,
+  KeyHistoryResponseDataKeysInner,
+  KeyHistoryResponseDataKeysInnerStatusEnum,
+  RotateEntityKeyRequest,
+  EmergencyRevokeKeyRequest,
+  EmergencyRevokeKeyRequestReasonEnum,
+
   // Signing types
   CreateSigningSessionRequest,
   SigningSessionCreateResponse,
   SigningSessionCreateResponseData,
+  SigningSessionCreateResponseDataStatusEnum,
   SigningSessionStatusResponse,
   SigningSessionStatusResponseData,
+  SigningSessionStatusResponseDataStatusEnum,
   SigningSessionsListResponse,
   SigningSessionsListResponseData,
   SigningSessionsListResponseDataSessionsInner,
+  SigningSessionsListResponseDataSessionsInnerStatusEnum,
+  CompleteSigningSessionRequest,
+  SigningSessionCompleteResponse,
+  SigningSessionCompleteResponseData,
+  SigningSessionCompleteResponseDataStatusEnum,
 
   // SDX types
   SDXTokenRequest,
@@ -174,4 +220,37 @@ export type {
   SweepPreviewResponse,
   SweepResponse,
   SweepRequest,
+
+  // Attestation types (lender-facing)
+  Attestation,
+  AttestationProvider,
+  AttestationTrustEvaluation,
+  AttestationVerification,
+  AttestationVerificationTypeEnum,
+  AttestationVerificationStatusEnum,
+  AttestationsResponse,
+  AttestationsResponseData,
+  AttestationsSummary,
+  ProofAccessTokenResponse,
+  ProofAccessTokenResponseData,
+
+  // Trust types (lender-facing)
+  TrustEvaluationResponse,
+  TrustEvaluationResponseData,
+  TrustSettingsResponse,
+  TrustSettingsResponseData,
+  TrustSettingsResponseDataSettingsInner,
+  TrustSettingsUpdateResponse,
+  TrustSettingsUpdateResponseData,
+
+  // KYC types (neobank-facing)
+  KYCProvidersResponse,
+  KYCProvidersResponseData,
+  KYCProvidersResponseDataProvidersInner,
+  KYCStatusResponse,
+  KYCStatusResponseData,
+  KYCStatusResponseDataStatusEnum,
+  KYCStatusResponseDataAttestationsInner,
+  KYCInitiateResponse,
+  KYCInitiateResponseData,
 } from './generated/api';
