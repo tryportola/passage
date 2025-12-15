@@ -759,7 +759,8 @@ export interface AttestationVerification {
 export const AttestationVerificationTypeEnum = {
     Document: 'document',
     Identity: 'identity',
-    Liveness: 'liveness'
+    Address: 'address',
+    Age: 'age'
 } as const;
 
 export type AttestationVerificationTypeEnum = typeof AttestationVerificationTypeEnum[keyof typeof AttestationVerificationTypeEnum];
@@ -6478,6 +6479,18 @@ export interface SigningSessionStatusResponseData {
      */
     'completedAt'?: string | null;
     /**
+     * When the signing session failed (null if not failed)
+     * @type {string}
+     * @memberof SigningSessionStatusResponseData
+     */
+    'failedAt'?: string | null;
+    /**
+     * Reason for signing failure (null if not failed)
+     * @type {string}
+     * @memberof SigningSessionStatusResponseData
+     */
+    'failureReason'?: string | null;
+    /**
      * SDX handle for signed document (entity-specific)
      * @type {string}
      * @memberof SigningSessionStatusResponseData
@@ -6612,6 +6625,18 @@ export interface SigningSessionsListResponseDataSessionsInner {
      * @memberof SigningSessionsListResponseDataSessionsInner
      */
     'completedAt'?: string | null;
+    /**
+     * When the signing session failed (null if not failed)
+     * @type {string}
+     * @memberof SigningSessionsListResponseDataSessionsInner
+     */
+    'failedAt'?: string | null;
+    /**
+     * Reason for signing failure (null if not failed)
+     * @type {string}
+     * @memberof SigningSessionsListResponseDataSessionsInner
+     */
+    'failureReason'?: string | null;
     /**
      * SDX handle for signed document (entity-specific)
      * @type {string}

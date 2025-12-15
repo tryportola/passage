@@ -237,7 +237,8 @@ var ApplicationStatus = {
 var AttestationVerificationTypeEnum = {
   Document: "document",
   Identity: "identity",
-  Liveness: "liveness"
+  Address: "address",
+  Age: "age"
 };
 var AttestationVerificationStatusEnum = {
   Passed: "passed",
