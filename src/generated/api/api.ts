@@ -193,6 +193,12 @@ export interface ApplicationRequest {
      * @memberof ApplicationRequest
      */
     'borrowerWalletChain'?: ApplicationRequestBorrowerWalletChainEnum;
+    /**
+     * Reference to a verified Wallet resource (preferred over borrowerWalletAddress).  When set, wallet ownership must be verified by this neobank before application submission. Use the wallet verification endpoints to register and verify: 1. POST /wallets - Create/link wallet 2. POST /wallets/{walletId}/verifications - Initiate MESSAGE_SIGN verification 3. POST /verifications/{verificationId}/proof - Submit signature proof  If walletId is set and the wallet is not verified, submission will fail with WALLET_NOT_VERIFIED error. 
+     * @type {string}
+     * @memberof ApplicationRequest
+     */
+    'walletId'?: string;
 }
 
 export const ApplicationRequestProductTypeEnum = {
@@ -1275,6 +1281,24 @@ export interface BridgeRepaymentReceipt {
     'finalAmount'?: string;
 }
 /**
+ * Supported blockchain networks
+ * @export
+ * @enum {string}
+ */
+
+export const Chain = {
+    Base: 'base',
+    Ethereum: 'ethereum',
+    Polygon: 'polygon',
+    Arbitrum: 'arbitrum',
+    Optimism: 'optimism',
+    Solana: 'solana'
+} as const;
+
+export type Chain = typeof Chain[keyof typeof Chain];
+
+
+/**
  * 
  * @export
  * @interface CompleteSigningSessionRequest
@@ -1413,6 +1437,51 @@ export interface CreateSigningSessionRequest {
      */
     'borrowerName': string;
 }
+/**
+ * 
+ * @export
+ * @interface CreateWalletRequest
+ */
+export interface CreateWalletRequest {
+    /**
+     * Wallet address (0x... for EVM, base58 for Solana)
+     * @type {string}
+     * @memberof CreateWalletRequest
+     */
+    'address': string;
+    /**
+     * 
+     * @type {Chain}
+     * @memberof CreateWalletRequest
+     */
+    'chain'?: Chain;
+    /**
+     * 
+     * @type {WalletType}
+     * @memberof CreateWalletRequest
+     */
+    'type'?: WalletType;
+    /**
+     * Neobank\'s internal reference for this wallet/borrower
+     * @type {string}
+     * @memberof CreateWalletRequest
+     */
+    'externalId'?: string;
+    /**
+     * Human-readable label for this wallet
+     * @type {string}
+     * @memberof CreateWalletRequest
+     */
+    'label'?: string;
+    /**
+     * Arbitrary metadata
+     * @type {{ [key: string]: any; }}
+     * @memberof CreateWalletRequest
+     */
+    'metadata'?: { [key: string]: any; };
+}
+
+
 /**
  * 
  * @export
@@ -2825,6 +2894,21 @@ export interface InitiateKYCRequest {
      */
     'return_url'?: string;
 }
+/**
+ * 
+ * @export
+ * @interface InitiateVerificationRequest
+ */
+export interface InitiateVerificationRequest {
+    /**
+     * 
+     * @type {WalletVerificationMethod}
+     * @memberof InitiateVerificationRequest
+     */
+    'method': WalletVerificationMethod;
+}
+
+
 /**
  * 
  * @export
@@ -4550,6 +4634,45 @@ export interface MainWallet {
      */
     'balance'?: string;
 }
+/**
+ * 
+ * @export
+ * @interface MessageSignChallenge
+ */
+export interface MessageSignChallenge {
+    /**
+     * Human-readable message to sign
+     * @type {string}
+     * @memberof MessageSignChallenge
+     */
+    'message': string;
+    /**
+     * Unique nonce for replay protection
+     * @type {string}
+     * @memberof MessageSignChallenge
+     */
+    'nonce': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof MessageSignChallenge
+     */
+    'signingStandard': MessageSignChallengeSigningStandardEnum;
+    /**
+     * EIP-712 typed data structure (if using typed signing)
+     * @type {{ [key: string]: any; }}
+     * @memberof MessageSignChallenge
+     */
+    'typedData'?: { [key: string]: any; };
+}
+
+export const MessageSignChallengeSigningStandardEnum = {
+    PersonalSign: 'personal_sign',
+    EthSignTypedDataV4: 'eth_signTypedData_v4'
+} as const;
+
+export type MessageSignChallengeSigningStandardEnum = typeof MessageSignChallengeSigningStandardEnum[keyof typeof MessageSignChallengeSigningStandardEnum];
+
 /**
  * 
  * @export
@@ -6810,6 +6933,19 @@ export const SigningSessionsListResponseDataSessionsInnerStatusEnum = {
 export type SigningSessionsListResponseDataSessionsInnerStatusEnum = typeof SigningSessionsListResponseDataSessionsInnerStatusEnum[keyof typeof SigningSessionsListResponseDataSessionsInnerStatusEnum];
 
 /**
+ * 
+ * @export
+ * @interface SubmitProofRequest
+ */
+export interface SubmitProofRequest {
+    /**
+     * Cryptographic signature from wallet
+     * @type {string}
+     * @memberof SubmitProofRequest
+     */
+    'signature': string;
+}
+/**
  * Sweep preview response
  * @export
  * @interface SweepPreviewResponse
@@ -8287,6 +8423,31 @@ export interface UpdateApplicationStatusRequest {
 /**
  * 
  * @export
+ * @interface UpdateWalletRequest
+ */
+export interface UpdateWalletRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateWalletRequest
+     */
+    'externalId'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateWalletRequest
+     */
+    'label'?: string;
+    /**
+     * 
+     * @type {{ [key: string]: any; }}
+     * @memberof UpdateWalletRequest
+     */
+    'metadata'?: { [key: string]: any; };
+}
+/**
+ * 
+ * @export
  * @interface ValidationErrorResponse
  */
 export interface ValidationErrorResponse {
@@ -8353,6 +8514,308 @@ export interface ValidationErrorResponseAllOfDetails {
     'message': string;
 }
 /**
+ * 
+ * @export
+ * @interface VerificationChallengeData
+ */
+export interface VerificationChallengeData {
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationChallengeData
+     */
+    'verificationId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationChallengeData
+     */
+    'walletId': string;
+    /**
+     * 
+     * @type {WalletVerificationMethod}
+     * @memberof VerificationChallengeData
+     */
+    'method': WalletVerificationMethod;
+    /**
+     * 
+     * @type {WalletVerificationStatus}
+     * @memberof VerificationChallengeData
+     */
+    'status': WalletVerificationStatus;
+    /**
+     * 
+     * @type {MessageSignChallenge}
+     * @memberof VerificationChallengeData
+     */
+    'challenge': MessageSignChallenge;
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationChallengeData
+     */
+    'expiresAt': string;
+}
+
+
+/**
+ * 
+ * @export
+ * @interface VerificationChallengeResponse
+ */
+export interface VerificationChallengeResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof VerificationChallengeResponse
+     */
+    'success': boolean;
+    /**
+     * 
+     * @type {VerificationChallengeData}
+     * @memberof VerificationChallengeResponse
+     */
+    'data': VerificationChallengeData;
+}
+/**
+ * 
+ * @export
+ * @interface VerificationListResponse
+ */
+export interface VerificationListResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof VerificationListResponse
+     */
+    'success': boolean;
+    /**
+     * 
+     * @type {VerificationListResponseData}
+     * @memberof VerificationListResponse
+     */
+    'data': VerificationListResponseData;
+}
+/**
+ * 
+ * @export
+ * @interface VerificationListResponseData
+ */
+export interface VerificationListResponseData {
+    /**
+     * 
+     * @type {Array<VerificationListResponseDataVerificationsInner>}
+     * @memberof VerificationListResponseData
+     */
+    'verifications': Array<VerificationListResponseDataVerificationsInner>;
+}
+/**
+ * 
+ * @export
+ * @interface VerificationListResponseDataVerificationsInner
+ */
+export interface VerificationListResponseDataVerificationsInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationListResponseDataVerificationsInner
+     */
+    'id': string;
+    /**
+     * 
+     * @type {WalletVerificationMethod}
+     * @memberof VerificationListResponseDataVerificationsInner
+     */
+    'method': WalletVerificationMethod;
+    /**
+     * 
+     * @type {WalletVerificationStatus}
+     * @memberof VerificationListResponseDataVerificationsInner
+     */
+    'status': WalletVerificationStatus;
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationListResponseDataVerificationsInner
+     */
+    'initiatedAt': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationListResponseDataVerificationsInner
+     */
+    'completedAt'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationListResponseDataVerificationsInner
+     */
+    'expiresAt': string;
+}
+
+
+/**
+ * 
+ * @export
+ * @interface VerificationProofData
+ */
+export interface VerificationProofData {
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationProofData
+     */
+    'verificationId': string;
+    /**
+     * 
+     * @type {WalletVerificationStatus}
+     * @memberof VerificationProofData
+     */
+    'status': WalletVerificationStatus;
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationProofData
+     */
+    'verifiedAt'?: string | null;
+    /**
+     * 
+     * @type {VerificationProofDataWallet}
+     * @memberof VerificationProofData
+     */
+    'wallet': VerificationProofDataWallet;
+}
+
+
+/**
+ * 
+ * @export
+ * @interface VerificationProofDataWallet
+ */
+export interface VerificationProofDataWallet {
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationProofDataWallet
+     */
+    'id': string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof VerificationProofDataWallet
+     */
+    'verified': boolean;
+    /**
+     * 
+     * @type {WalletVerificationMethod}
+     * @memberof VerificationProofDataWallet
+     */
+    'verificationMethod'?: WalletVerificationMethod;
+}
+
+
+/**
+ * 
+ * @export
+ * @interface VerificationProofResponse
+ */
+export interface VerificationProofResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof VerificationProofResponse
+     */
+    'success': boolean;
+    /**
+     * 
+     * @type {VerificationProofData}
+     * @memberof VerificationProofResponse
+     */
+    'data': VerificationProofData;
+}
+/**
+ * 
+ * @export
+ * @interface VerificationStatusData
+ */
+export interface VerificationStatusData {
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationStatusData
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationStatusData
+     */
+    'walletId': string;
+    /**
+     * 
+     * @type {WalletVerificationMethod}
+     * @memberof VerificationStatusData
+     */
+    'method': WalletVerificationMethod;
+    /**
+     * 
+     * @type {WalletVerificationStatus}
+     * @memberof VerificationStatusData
+     */
+    'status': WalletVerificationStatus;
+    /**
+     * 
+     * @type {MessageSignChallenge}
+     * @memberof VerificationStatusData
+     */
+    'challenge'?: MessageSignChallenge;
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationStatusData
+     */
+    'expiresAt': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationStatusData
+     */
+    'completedAt'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationStatusData
+     */
+    'failedAt'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof VerificationStatusData
+     */
+    'failureReason'?: string | null;
+}
+
+
+/**
+ * 
+ * @export
+ * @interface VerificationStatusResponse
+ */
+export interface VerificationStatusResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof VerificationStatusResponse
+     */
+    'success': boolean;
+    /**
+     * 
+     * @type {VerificationStatusData}
+     * @memberof VerificationStatusResponse
+     */
+    'data': VerificationStatusData;
+}
+/**
  * Aggregate wallet totals
  * @export
  * @interface WalletAggregate
@@ -8408,6 +8871,210 @@ export interface WalletBalance {
      */
     'chain'?: string;
 }
+/**
+ * 
+ * @export
+ * @interface WalletData
+ */
+export interface WalletData {
+    /**
+     * 
+     * @type {string}
+     * @memberof WalletData
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof WalletData
+     */
+    'address': string;
+    /**
+     * 
+     * @type {Chain}
+     * @memberof WalletData
+     */
+    'chain': Chain;
+    /**
+     * 
+     * @type {WalletType}
+     * @memberof WalletData
+     */
+    'type': WalletType;
+    /**
+     * Global verification status (verified by ANY neobank)
+     * @type {boolean}
+     * @memberof WalletData
+     */
+    'verified': boolean;
+    /**
+     * Per-neobank verification status (verified by THIS neobank)
+     * @type {boolean}
+     * @memberof WalletData
+     */
+    'verifiedByThisNeobank': boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof WalletData
+     */
+    'verifiedAt'?: string | null;
+    /**
+     * 
+     * @type {WalletVerificationMethod}
+     * @memberof WalletData
+     */
+    'verificationMethod'?: WalletVerificationMethod;
+    /**
+     * 
+     * @type {string}
+     * @memberof WalletData
+     */
+    'externalId'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof WalletData
+     */
+    'label'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof WalletData
+     */
+    'createdAt': string;
+}
+
+
+/**
+ * 
+ * @export
+ * @interface WalletListResponse
+ */
+export interface WalletListResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof WalletListResponse
+     */
+    'success': boolean;
+    /**
+     * 
+     * @type {WalletListResponseData}
+     * @memberof WalletListResponse
+     */
+    'data': WalletListResponseData;
+}
+/**
+ * 
+ * @export
+ * @interface WalletListResponseData
+ */
+export interface WalletListResponseData {
+    /**
+     * 
+     * @type {Array<WalletData>}
+     * @memberof WalletListResponseData
+     */
+    'wallets': Array<WalletData>;
+    /**
+     * 
+     * @type {WalletListResponseDataPagination}
+     * @memberof WalletListResponseData
+     */
+    'pagination': WalletListResponseDataPagination;
+}
+/**
+ * 
+ * @export
+ * @interface WalletListResponseDataPagination
+ */
+export interface WalletListResponseDataPagination {
+    /**
+     * 
+     * @type {number}
+     * @memberof WalletListResponseDataPagination
+     */
+    'total': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof WalletListResponseDataPagination
+     */
+    'limit': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof WalletListResponseDataPagination
+     */
+    'offset': number;
+}
+/**
+ * 
+ * @export
+ * @interface WalletResponse
+ */
+export interface WalletResponse {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof WalletResponse
+     */
+    'success': boolean;
+    /**
+     * 
+     * @type {WalletData}
+     * @memberof WalletResponse
+     */
+    'data': WalletData;
+}
+/**
+ * Wallet type determines verification method availability: - EMBEDDED_NON_CUSTODIAL: Privy, Dynamic, Turnkey - user has keys, embedded in neobank app - EMBEDDED_CUSTODIAL: Neobank/exchange holds keys for user - EXTERNAL_NON_CUSTODIAL: MetaMask, Ledger, Rainbow - user\'s own standalone wallet 
+ * @export
+ * @enum {string}
+ */
+
+export const WalletType = {
+    EmbeddedNonCustodial: 'EMBEDDED_NON_CUSTODIAL',
+    EmbeddedCustodial: 'EMBEDDED_CUSTODIAL',
+    ExternalNonCustodial: 'EXTERNAL_NON_CUSTODIAL'
+} as const;
+
+export type WalletType = typeof WalletType[keyof typeof WalletType];
+
+
+/**
+ * Verification method: - MESSAGE_SIGN: Cryptographic signature (zero cost, instant, self-custody only) - MICRO_DEPOSIT: Send small amount back (universal, high friction) - AOPP: Address Ownership Proof Protocol (FATF Travel Rule standard) 
+ * @export
+ * @enum {string}
+ */
+
+export const WalletVerificationMethod = {
+    MessageSign: 'MESSAGE_SIGN',
+    MicroDeposit: 'MICRO_DEPOSIT',
+    Aopp: 'AOPP'
+} as const;
+
+export type WalletVerificationMethod = typeof WalletVerificationMethod[keyof typeof WalletVerificationMethod];
+
+
+/**
+ * Verification status: - PENDING: Challenge issued, awaiting proof - AWAITING_CONFIRMATION: Micro-deposit tx seen, awaiting confirmations - VERIFIED: Successfully verified - FAILED: Verification failed - EXPIRED: Challenge expired 
+ * @export
+ * @enum {string}
+ */
+
+export const WalletVerificationStatus = {
+    Pending: 'PENDING',
+    AwaitingConfirmation: 'AWAITING_CONFIRMATION',
+    Verified: 'VERIFIED',
+    Failed: 'FAILED',
+    Expired: 'EXPIRED'
+} as const;
+
+export type WalletVerificationStatus = typeof WalletVerificationStatus[keyof typeof WalletVerificationStatus];
+
+
 /**
  * Response from POST /webhook/{provider}
  * @export
@@ -16966,6 +17633,931 @@ export class TreasuryApi extends BaseAPI implements TreasuryApiInterface {
      */
     public getTreasuryTransactions(requestParameters: TreasuryApiGetTreasuryTransactionsRequest = {}, options?: RawAxiosRequestConfig) {
         return TreasuryApiFp(this.configuration).getTreasuryTransactions(requestParameters.limit, requestParameters.cursor, requestParameters.updatedAfter, requestParameters.updatedBefore, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * WalletsApi - axios parameter creator
+ * @export
+ */
+export const WalletsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Register a wallet address for ownership verification. Idempotent - returns existing wallet if address+chain already exists, creates a neobank-specific link if needed. 
+         * @summary Create or link a wallet
+         * @param {CreateWalletRequest} createWalletRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createWallet: async (createWalletRequest: CreateWalletRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createWalletRequest' is not null or undefined
+            assertParamExists('createWallet', 'createWalletRequest', createWalletRequest)
+            const localVarPath = `/wallets`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "X-API-Key", configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createWalletRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Get the status of a verification attempt
+         * @summary Get verification status
+         * @param {string} verificationId Unique identifier for the verification attempt
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getVerification: async (verificationId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'verificationId' is not null or undefined
+            assertParamExists('getVerification', 'verificationId', verificationId)
+            const localVarPath = `/verifications/{verificationId}`
+                .replace(`{${"verificationId"}}`, encodeURIComponent(String(verificationId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "X-API-Key", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Get a wallet by its ID (neobank must have link)
+         * @summary Get wallet by ID
+         * @param {string} id Unique identifier for the wallet
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getWallet: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('getWallet', 'id', id)
+            const localVarPath = `/wallets/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "X-API-Key", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Start wallet ownership verification process. Generates a challenge based on the verification method. For MESSAGE_SIGN: returns a message for the user to sign. 
+         * @summary Initiate wallet verification
+         * @param {string} walletId 
+         * @param {InitiateVerificationRequest} initiateVerificationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        initiateWalletVerification: async (walletId: string, initiateVerificationRequest: InitiateVerificationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'walletId' is not null or undefined
+            assertParamExists('initiateWalletVerification', 'walletId', walletId)
+            // verify required parameter 'initiateVerificationRequest' is not null or undefined
+            assertParamExists('initiateWalletVerification', 'initiateVerificationRequest', initiateVerificationRequest)
+            const localVarPath = `/wallets/{walletId}/verifications`
+                .replace(`{${"walletId"}}`, encodeURIComponent(String(walletId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "X-API-Key", configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(initiateVerificationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * List all verification attempts for a wallet (this neobank\'s verifications only)
+         * @summary List verifications for wallet
+         * @param {string} walletId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listWalletVerifications: async (walletId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'walletId' is not null or undefined
+            assertParamExists('listWalletVerifications', 'walletId', walletId)
+            const localVarPath = `/wallets/{walletId}/verifications`
+                .replace(`{${"walletId"}}`, encodeURIComponent(String(walletId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "X-API-Key", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * List wallets linked to this neobank with optional filters
+         * @summary List wallets
+         * @param {boolean} [verified] Filter by global verification status
+         * @param {Chain} [chain] Filter by blockchain
+         * @param {string} [externalId] Filter by neobank\&#39;s external reference ID
+         * @param {string} [address] Partial address match (case-insensitive)
+         * @param {number} [limit] 
+         * @param {number} [offset] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listWallets: async (verified?: boolean, chain?: Chain, externalId?: string, address?: string, limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/wallets`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "X-API-Key", configuration)
+
+            if (verified !== undefined) {
+                localVarQueryParameter['verified'] = verified;
+            }
+
+            if (chain !== undefined) {
+                localVarQueryParameter['chain'] = chain;
+            }
+
+            if (externalId !== undefined) {
+                localVarQueryParameter['externalId'] = externalId;
+            }
+
+            if (address !== undefined) {
+                localVarQueryParameter['address'] = address;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (offset !== undefined) {
+                localVarQueryParameter['offset'] = offset;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Submit proof to complete wallet verification. For MESSAGE_SIGN: submit the wallet signature. 
+         * @summary Submit verification proof
+         * @param {string} verificationId Unique identifier for the verification attempt
+         * @param {SubmitProofRequest} submitProofRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        submitVerificationProof: async (verificationId: string, submitProofRequest: SubmitProofRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'verificationId' is not null or undefined
+            assertParamExists('submitVerificationProof', 'verificationId', verificationId)
+            // verify required parameter 'submitProofRequest' is not null or undefined
+            assertParamExists('submitVerificationProof', 'submitProofRequest', submitProofRequest)
+            const localVarPath = `/verifications/{verificationId}/proof`
+                .replace(`{${"verificationId"}}`, encodeURIComponent(String(verificationId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "X-API-Key", configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(submitProofRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Update neobank-specific metadata (externalId, label, metadata)
+         * @summary Update wallet metadata
+         * @param {string} id Unique identifier for the wallet
+         * @param {UpdateWalletRequest} updateWalletRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateWallet: async (id: string, updateWalletRequest: UpdateWalletRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('updateWallet', 'id', id)
+            // verify required parameter 'updateWalletRequest' is not null or undefined
+            assertParamExists('updateWallet', 'updateWalletRequest', updateWalletRequest)
+            const localVarPath = `/wallets/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            await setApiKeyToObject(localVarHeaderParameter, "X-API-Key", configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateWalletRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * WalletsApi - functional programming interface
+ * @export
+ */
+export const WalletsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = WalletsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Register a wallet address for ownership verification. Idempotent - returns existing wallet if address+chain already exists, creates a neobank-specific link if needed. 
+         * @summary Create or link a wallet
+         * @param {CreateWalletRequest} createWalletRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createWallet(createWalletRequest: CreateWalletRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createWallet(createWalletRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletsApi.createWallet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Get the status of a verification attempt
+         * @summary Get verification status
+         * @param {string} verificationId Unique identifier for the verification attempt
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getVerification(verificationId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VerificationStatusResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getVerification(verificationId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletsApi.getVerification']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Get a wallet by its ID (neobank must have link)
+         * @summary Get wallet by ID
+         * @param {string} id Unique identifier for the wallet
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getWallet(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getWallet(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletsApi.getWallet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Start wallet ownership verification process. Generates a challenge based on the verification method. For MESSAGE_SIGN: returns a message for the user to sign. 
+         * @summary Initiate wallet verification
+         * @param {string} walletId 
+         * @param {InitiateVerificationRequest} initiateVerificationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async initiateWalletVerification(walletId: string, initiateVerificationRequest: InitiateVerificationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VerificationChallengeResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.initiateWalletVerification(walletId, initiateVerificationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletsApi.initiateWalletVerification']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * List all verification attempts for a wallet (this neobank\'s verifications only)
+         * @summary List verifications for wallet
+         * @param {string} walletId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listWalletVerifications(walletId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VerificationListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listWalletVerifications(walletId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletsApi.listWalletVerifications']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * List wallets linked to this neobank with optional filters
+         * @summary List wallets
+         * @param {boolean} [verified] Filter by global verification status
+         * @param {Chain} [chain] Filter by blockchain
+         * @param {string} [externalId] Filter by neobank\&#39;s external reference ID
+         * @param {string} [address] Partial address match (case-insensitive)
+         * @param {number} [limit] 
+         * @param {number} [offset] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listWallets(verified?: boolean, chain?: Chain, externalId?: string, address?: string, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listWallets(verified, chain, externalId, address, limit, offset, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletsApi.listWallets']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Submit proof to complete wallet verification. For MESSAGE_SIGN: submit the wallet signature. 
+         * @summary Submit verification proof
+         * @param {string} verificationId Unique identifier for the verification attempt
+         * @param {SubmitProofRequest} submitProofRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async submitVerificationProof(verificationId: string, submitProofRequest: SubmitProofRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VerificationProofResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.submitVerificationProof(verificationId, submitProofRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletsApi.submitVerificationProof']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Update neobank-specific metadata (externalId, label, metadata)
+         * @summary Update wallet metadata
+         * @param {string} id Unique identifier for the wallet
+         * @param {UpdateWalletRequest} updateWalletRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateWallet(id: string, updateWalletRequest: UpdateWalletRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateWallet(id, updateWalletRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletsApi.updateWallet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * WalletsApi - factory interface
+ * @export
+ */
+export const WalletsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = WalletsApiFp(configuration)
+    return {
+        /**
+         * Register a wallet address for ownership verification. Idempotent - returns existing wallet if address+chain already exists, creates a neobank-specific link if needed. 
+         * @summary Create or link a wallet
+         * @param {WalletsApiCreateWalletRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createWallet(requestParameters: WalletsApiCreateWalletRequest, options?: RawAxiosRequestConfig): AxiosPromise<WalletResponse> {
+            return localVarFp.createWallet(requestParameters.createWalletRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Get the status of a verification attempt
+         * @summary Get verification status
+         * @param {WalletsApiGetVerificationRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getVerification(requestParameters: WalletsApiGetVerificationRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationStatusResponse> {
+            return localVarFp.getVerification(requestParameters.verificationId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Get a wallet by its ID (neobank must have link)
+         * @summary Get wallet by ID
+         * @param {WalletsApiGetWalletRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getWallet(requestParameters: WalletsApiGetWalletRequest, options?: RawAxiosRequestConfig): AxiosPromise<WalletResponse> {
+            return localVarFp.getWallet(requestParameters.id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Start wallet ownership verification process. Generates a challenge based on the verification method. For MESSAGE_SIGN: returns a message for the user to sign. 
+         * @summary Initiate wallet verification
+         * @param {WalletsApiInitiateWalletVerificationRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        initiateWalletVerification(requestParameters: WalletsApiInitiateWalletVerificationRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationChallengeResponse> {
+            return localVarFp.initiateWalletVerification(requestParameters.walletId, requestParameters.initiateVerificationRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * List all verification attempts for a wallet (this neobank\'s verifications only)
+         * @summary List verifications for wallet
+         * @param {WalletsApiListWalletVerificationsRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listWalletVerifications(requestParameters: WalletsApiListWalletVerificationsRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationListResponse> {
+            return localVarFp.listWalletVerifications(requestParameters.walletId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * List wallets linked to this neobank with optional filters
+         * @summary List wallets
+         * @param {WalletsApiListWalletsRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listWallets(requestParameters: WalletsApiListWalletsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<WalletListResponse> {
+            return localVarFp.listWallets(requestParameters.verified, requestParameters.chain, requestParameters.externalId, requestParameters.address, requestParameters.limit, requestParameters.offset, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Submit proof to complete wallet verification. For MESSAGE_SIGN: submit the wallet signature. 
+         * @summary Submit verification proof
+         * @param {WalletsApiSubmitVerificationProofRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        submitVerificationProof(requestParameters: WalletsApiSubmitVerificationProofRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationProofResponse> {
+            return localVarFp.submitVerificationProof(requestParameters.verificationId, requestParameters.submitProofRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Update neobank-specific metadata (externalId, label, metadata)
+         * @summary Update wallet metadata
+         * @param {WalletsApiUpdateWalletRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateWallet(requestParameters: WalletsApiUpdateWalletRequest, options?: RawAxiosRequestConfig): AxiosPromise<WalletResponse> {
+            return localVarFp.updateWallet(requestParameters.id, requestParameters.updateWalletRequest, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * WalletsApi - interface
+ * @export
+ * @interface WalletsApi
+ */
+export interface WalletsApiInterface {
+    /**
+     * Register a wallet address for ownership verification. Idempotent - returns existing wallet if address+chain already exists, creates a neobank-specific link if needed. 
+     * @summary Create or link a wallet
+     * @param {WalletsApiCreateWalletRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    createWallet(requestParameters: WalletsApiCreateWalletRequest, options?: RawAxiosRequestConfig): AxiosPromise<WalletResponse>;
+
+    /**
+     * Get the status of a verification attempt
+     * @summary Get verification status
+     * @param {WalletsApiGetVerificationRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    getVerification(requestParameters: WalletsApiGetVerificationRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationStatusResponse>;
+
+    /**
+     * Get a wallet by its ID (neobank must have link)
+     * @summary Get wallet by ID
+     * @param {WalletsApiGetWalletRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    getWallet(requestParameters: WalletsApiGetWalletRequest, options?: RawAxiosRequestConfig): AxiosPromise<WalletResponse>;
+
+    /**
+     * Start wallet ownership verification process. Generates a challenge based on the verification method. For MESSAGE_SIGN: returns a message for the user to sign. 
+     * @summary Initiate wallet verification
+     * @param {WalletsApiInitiateWalletVerificationRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    initiateWalletVerification(requestParameters: WalletsApiInitiateWalletVerificationRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationChallengeResponse>;
+
+    /**
+     * List all verification attempts for a wallet (this neobank\'s verifications only)
+     * @summary List verifications for wallet
+     * @param {WalletsApiListWalletVerificationsRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    listWalletVerifications(requestParameters: WalletsApiListWalletVerificationsRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationListResponse>;
+
+    /**
+     * List wallets linked to this neobank with optional filters
+     * @summary List wallets
+     * @param {WalletsApiListWalletsRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    listWallets(requestParameters?: WalletsApiListWalletsRequest, options?: RawAxiosRequestConfig): AxiosPromise<WalletListResponse>;
+
+    /**
+     * Submit proof to complete wallet verification. For MESSAGE_SIGN: submit the wallet signature. 
+     * @summary Submit verification proof
+     * @param {WalletsApiSubmitVerificationProofRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    submitVerificationProof(requestParameters: WalletsApiSubmitVerificationProofRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationProofResponse>;
+
+    /**
+     * Update neobank-specific metadata (externalId, label, metadata)
+     * @summary Update wallet metadata
+     * @param {WalletsApiUpdateWalletRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    updateWallet(requestParameters: WalletsApiUpdateWalletRequest, options?: RawAxiosRequestConfig): AxiosPromise<WalletResponse>;
+
+}
+
+/**
+ * Request parameters for createWallet operation in WalletsApi.
+ * @export
+ * @interface WalletsApiCreateWalletRequest
+ */
+export interface WalletsApiCreateWalletRequest {
+    /**
+     * 
+     * @type {CreateWalletRequest}
+     * @memberof WalletsApiCreateWallet
+     */
+    readonly createWalletRequest: CreateWalletRequest
+}
+
+/**
+ * Request parameters for getVerification operation in WalletsApi.
+ * @export
+ * @interface WalletsApiGetVerificationRequest
+ */
+export interface WalletsApiGetVerificationRequest {
+    /**
+     * Unique identifier for the verification attempt
+     * @type {string}
+     * @memberof WalletsApiGetVerification
+     */
+    readonly verificationId: string
+}
+
+/**
+ * Request parameters for getWallet operation in WalletsApi.
+ * @export
+ * @interface WalletsApiGetWalletRequest
+ */
+export interface WalletsApiGetWalletRequest {
+    /**
+     * Unique identifier for the wallet
+     * @type {string}
+     * @memberof WalletsApiGetWallet
+     */
+    readonly id: string
+}
+
+/**
+ * Request parameters for initiateWalletVerification operation in WalletsApi.
+ * @export
+ * @interface WalletsApiInitiateWalletVerificationRequest
+ */
+export interface WalletsApiInitiateWalletVerificationRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof WalletsApiInitiateWalletVerification
+     */
+    readonly walletId: string
+
+    /**
+     * 
+     * @type {InitiateVerificationRequest}
+     * @memberof WalletsApiInitiateWalletVerification
+     */
+    readonly initiateVerificationRequest: InitiateVerificationRequest
+}
+
+/**
+ * Request parameters for listWalletVerifications operation in WalletsApi.
+ * @export
+ * @interface WalletsApiListWalletVerificationsRequest
+ */
+export interface WalletsApiListWalletVerificationsRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof WalletsApiListWalletVerifications
+     */
+    readonly walletId: string
+}
+
+/**
+ * Request parameters for listWallets operation in WalletsApi.
+ * @export
+ * @interface WalletsApiListWalletsRequest
+ */
+export interface WalletsApiListWalletsRequest {
+    /**
+     * Filter by global verification status
+     * @type {boolean}
+     * @memberof WalletsApiListWallets
+     */
+    readonly verified?: boolean
+
+    /**
+     * Filter by blockchain
+     * @type {Chain}
+     * @memberof WalletsApiListWallets
+     */
+    readonly chain?: Chain
+
+    /**
+     * Filter by neobank\&#39;s external reference ID
+     * @type {string}
+     * @memberof WalletsApiListWallets
+     */
+    readonly externalId?: string
+
+    /**
+     * Partial address match (case-insensitive)
+     * @type {string}
+     * @memberof WalletsApiListWallets
+     */
+    readonly address?: string
+
+    /**
+     * 
+     * @type {number}
+     * @memberof WalletsApiListWallets
+     */
+    readonly limit?: number
+
+    /**
+     * 
+     * @type {number}
+     * @memberof WalletsApiListWallets
+     */
+    readonly offset?: number
+}
+
+/**
+ * Request parameters for submitVerificationProof operation in WalletsApi.
+ * @export
+ * @interface WalletsApiSubmitVerificationProofRequest
+ */
+export interface WalletsApiSubmitVerificationProofRequest {
+    /**
+     * Unique identifier for the verification attempt
+     * @type {string}
+     * @memberof WalletsApiSubmitVerificationProof
+     */
+    readonly verificationId: string
+
+    /**
+     * 
+     * @type {SubmitProofRequest}
+     * @memberof WalletsApiSubmitVerificationProof
+     */
+    readonly submitProofRequest: SubmitProofRequest
+}
+
+/**
+ * Request parameters for updateWallet operation in WalletsApi.
+ * @export
+ * @interface WalletsApiUpdateWalletRequest
+ */
+export interface WalletsApiUpdateWalletRequest {
+    /**
+     * Unique identifier for the wallet
+     * @type {string}
+     * @memberof WalletsApiUpdateWallet
+     */
+    readonly id: string
+
+    /**
+     * 
+     * @type {UpdateWalletRequest}
+     * @memberof WalletsApiUpdateWallet
+     */
+    readonly updateWalletRequest: UpdateWalletRequest
+}
+
+/**
+ * WalletsApi - object-oriented interface
+ * @export
+ * @class WalletsApi
+ * @extends {BaseAPI}
+ */
+export class WalletsApi extends BaseAPI implements WalletsApiInterface {
+    /**
+     * Register a wallet address for ownership verification. Idempotent - returns existing wallet if address+chain already exists, creates a neobank-specific link if needed. 
+     * @summary Create or link a wallet
+     * @param {WalletsApiCreateWalletRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    public createWallet(requestParameters: WalletsApiCreateWalletRequest, options?: RawAxiosRequestConfig) {
+        return WalletsApiFp(this.configuration).createWallet(requestParameters.createWalletRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get the status of a verification attempt
+     * @summary Get verification status
+     * @param {WalletsApiGetVerificationRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    public getVerification(requestParameters: WalletsApiGetVerificationRequest, options?: RawAxiosRequestConfig) {
+        return WalletsApiFp(this.configuration).getVerification(requestParameters.verificationId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get a wallet by its ID (neobank must have link)
+     * @summary Get wallet by ID
+     * @param {WalletsApiGetWalletRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    public getWallet(requestParameters: WalletsApiGetWalletRequest, options?: RawAxiosRequestConfig) {
+        return WalletsApiFp(this.configuration).getWallet(requestParameters.id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Start wallet ownership verification process. Generates a challenge based on the verification method. For MESSAGE_SIGN: returns a message for the user to sign. 
+     * @summary Initiate wallet verification
+     * @param {WalletsApiInitiateWalletVerificationRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    public initiateWalletVerification(requestParameters: WalletsApiInitiateWalletVerificationRequest, options?: RawAxiosRequestConfig) {
+        return WalletsApiFp(this.configuration).initiateWalletVerification(requestParameters.walletId, requestParameters.initiateVerificationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * List all verification attempts for a wallet (this neobank\'s verifications only)
+     * @summary List verifications for wallet
+     * @param {WalletsApiListWalletVerificationsRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    public listWalletVerifications(requestParameters: WalletsApiListWalletVerificationsRequest, options?: RawAxiosRequestConfig) {
+        return WalletsApiFp(this.configuration).listWalletVerifications(requestParameters.walletId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * List wallets linked to this neobank with optional filters
+     * @summary List wallets
+     * @param {WalletsApiListWalletsRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    public listWallets(requestParameters: WalletsApiListWalletsRequest = {}, options?: RawAxiosRequestConfig) {
+        return WalletsApiFp(this.configuration).listWallets(requestParameters.verified, requestParameters.chain, requestParameters.externalId, requestParameters.address, requestParameters.limit, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Submit proof to complete wallet verification. For MESSAGE_SIGN: submit the wallet signature. 
+     * @summary Submit verification proof
+     * @param {WalletsApiSubmitVerificationProofRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    public submitVerificationProof(requestParameters: WalletsApiSubmitVerificationProofRequest, options?: RawAxiosRequestConfig) {
+        return WalletsApiFp(this.configuration).submitVerificationProof(requestParameters.verificationId, requestParameters.submitProofRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update neobank-specific metadata (externalId, label, metadata)
+     * @summary Update wallet metadata
+     * @param {WalletsApiUpdateWalletRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    public updateWallet(requestParameters: WalletsApiUpdateWalletRequest, options?: RawAxiosRequestConfig) {
+        return WalletsApiFp(this.configuration).updateWallet(requestParameters.id, requestParameters.updateWalletRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

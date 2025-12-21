@@ -297,6 +297,12 @@ interface ApplicationRequest {
      * @memberof ApplicationRequest
      */
     'borrowerWalletChain'?: ApplicationRequestBorrowerWalletChainEnum;
+    /**
+     * Reference to a verified Wallet resource (preferred over borrowerWalletAddress).  When set, wallet ownership must be verified by this neobank before application submission. Use the wallet verification endpoints to register and verify: 1. POST /wallets - Create/link wallet 2. POST /wallets/{walletId}/verifications - Initiate MESSAGE_SIGN verification 3. POST /verifications/{verificationId}/proof - Submit signature proof  If walletId is set and the wallet is not verified, submission will fail with WALLET_NOT_VERIFIED error.
+     * @type {string}
+     * @memberof ApplicationRequest
+     */
+    'walletId'?: string;
 }
 declare const ApplicationRequestProductTypeEnum: {
     readonly Consumer: "consumer";
@@ -1369,6 +1375,20 @@ interface BridgeRepaymentReceipt {
     'finalAmount'?: string;
 }
 /**
+ * Supported blockchain networks
+ * @export
+ * @enum {string}
+ */
+declare const Chain: {
+    readonly Base: "base";
+    readonly Ethereum: "ethereum";
+    readonly Polygon: "polygon";
+    readonly Arbitrum: "arbitrum";
+    readonly Optimism: "optimism";
+    readonly Solana: "solana";
+};
+type Chain = typeof Chain[keyof typeof Chain];
+/**
  *
  * @export
  * @interface CompleteSigningSessionRequest
@@ -1503,6 +1523,51 @@ interface CreateSigningSessionRequest {
      * @memberof CreateSigningSessionRequest
      */
     'borrowerName': string;
+}
+/**
+ *
+ * @export
+ * @interface CreateWalletRequest
+ */
+interface CreateWalletRequest {
+    /**
+     * Wallet address (0x... for EVM, base58 for Solana)
+     * @type {string}
+     * @memberof CreateWalletRequest
+     */
+    'address': string;
+    /**
+     *
+     * @type {Chain}
+     * @memberof CreateWalletRequest
+     */
+    'chain'?: Chain;
+    /**
+     *
+     * @type {WalletType}
+     * @memberof CreateWalletRequest
+     */
+    'type'?: WalletType;
+    /**
+     * Neobank\'s internal reference for this wallet/borrower
+     * @type {string}
+     * @memberof CreateWalletRequest
+     */
+    'externalId'?: string;
+    /**
+     * Human-readable label for this wallet
+     * @type {string}
+     * @memberof CreateWalletRequest
+     */
+    'label'?: string;
+    /**
+     * Arbitrary metadata
+     * @type {{ [key: string]: any; }}
+     * @memberof CreateWalletRequest
+     */
+    'metadata'?: {
+        [key: string]: any;
+    };
 }
 /**
  *
@@ -2894,6 +2959,19 @@ interface InitiateKYCRequest {
      * @memberof InitiateKYCRequest
      */
     'return_url'?: string;
+}
+/**
+ *
+ * @export
+ * @interface InitiateVerificationRequest
+ */
+interface InitiateVerificationRequest {
+    /**
+     *
+     * @type {WalletVerificationMethod}
+     * @memberof InitiateVerificationRequest
+     */
+    'method': WalletVerificationMethod;
 }
 /**
  *
@@ -4593,6 +4671,44 @@ interface MainWallet {
      */
     'balance'?: string;
 }
+/**
+ *
+ * @export
+ * @interface MessageSignChallenge
+ */
+interface MessageSignChallenge {
+    /**
+     * Human-readable message to sign
+     * @type {string}
+     * @memberof MessageSignChallenge
+     */
+    'message': string;
+    /**
+     * Unique nonce for replay protection
+     * @type {string}
+     * @memberof MessageSignChallenge
+     */
+    'nonce': string;
+    /**
+     *
+     * @type {string}
+     * @memberof MessageSignChallenge
+     */
+    'signingStandard': MessageSignChallengeSigningStandardEnum;
+    /**
+     * EIP-712 typed data structure (if using typed signing)
+     * @type {{ [key: string]: any; }}
+     * @memberof MessageSignChallenge
+     */
+    'typedData'?: {
+        [key: string]: any;
+    };
+}
+declare const MessageSignChallengeSigningStandardEnum: {
+    readonly PersonalSign: "personal_sign";
+    readonly EthSignTypedDataV4: "eth_signTypedData_v4";
+};
+type MessageSignChallengeSigningStandardEnum = typeof MessageSignChallengeSigningStandardEnum[keyof typeof MessageSignChallengeSigningStandardEnum];
 /**
  *
  * @export
@@ -6808,6 +6924,19 @@ declare const SigningSessionsListResponseDataSessionsInnerStatusEnum: {
 };
 type SigningSessionsListResponseDataSessionsInnerStatusEnum = typeof SigningSessionsListResponseDataSessionsInnerStatusEnum[keyof typeof SigningSessionsListResponseDataSessionsInnerStatusEnum];
 /**
+ *
+ * @export
+ * @interface SubmitProofRequest
+ */
+interface SubmitProofRequest {
+    /**
+     * Cryptographic signature from wallet
+     * @type {string}
+     * @memberof SubmitProofRequest
+     */
+    'signature': string;
+}
+/**
  * Sweep preview response
  * @export
  * @interface SweepPreviewResponse
@@ -8267,6 +8396,33 @@ interface UpdateApplicationStatusRequest {
 /**
  *
  * @export
+ * @interface UpdateWalletRequest
+ */
+interface UpdateWalletRequest {
+    /**
+     *
+     * @type {string}
+     * @memberof UpdateWalletRequest
+     */
+    'externalId'?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof UpdateWalletRequest
+     */
+    'label'?: string;
+    /**
+     *
+     * @type {{ [key: string]: any; }}
+     * @memberof UpdateWalletRequest
+     */
+    'metadata'?: {
+        [key: string]: any;
+    };
+}
+/**
+ *
+ * @export
  * @interface ValidationErrorResponse
  */
 interface ValidationErrorResponse {
@@ -8329,6 +8485,298 @@ interface ValidationErrorResponseAllOfDetails {
     'message': string;
 }
 /**
+ *
+ * @export
+ * @interface VerificationChallengeData
+ */
+interface VerificationChallengeData {
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationChallengeData
+     */
+    'verificationId': string;
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationChallengeData
+     */
+    'walletId': string;
+    /**
+     *
+     * @type {WalletVerificationMethod}
+     * @memberof VerificationChallengeData
+     */
+    'method': WalletVerificationMethod;
+    /**
+     *
+     * @type {WalletVerificationStatus}
+     * @memberof VerificationChallengeData
+     */
+    'status': WalletVerificationStatus;
+    /**
+     *
+     * @type {MessageSignChallenge}
+     * @memberof VerificationChallengeData
+     */
+    'challenge': MessageSignChallenge;
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationChallengeData
+     */
+    'expiresAt': string;
+}
+/**
+ *
+ * @export
+ * @interface VerificationChallengeResponse
+ */
+interface VerificationChallengeResponse {
+    /**
+     *
+     * @type {boolean}
+     * @memberof VerificationChallengeResponse
+     */
+    'success': boolean;
+    /**
+     *
+     * @type {VerificationChallengeData}
+     * @memberof VerificationChallengeResponse
+     */
+    'data': VerificationChallengeData;
+}
+/**
+ *
+ * @export
+ * @interface VerificationListResponse
+ */
+interface VerificationListResponse {
+    /**
+     *
+     * @type {boolean}
+     * @memberof VerificationListResponse
+     */
+    'success': boolean;
+    /**
+     *
+     * @type {VerificationListResponseData}
+     * @memberof VerificationListResponse
+     */
+    'data': VerificationListResponseData;
+}
+/**
+ *
+ * @export
+ * @interface VerificationListResponseData
+ */
+interface VerificationListResponseData {
+    /**
+     *
+     * @type {Array<VerificationListResponseDataVerificationsInner>}
+     * @memberof VerificationListResponseData
+     */
+    'verifications': Array<VerificationListResponseDataVerificationsInner>;
+}
+/**
+ *
+ * @export
+ * @interface VerificationListResponseDataVerificationsInner
+ */
+interface VerificationListResponseDataVerificationsInner {
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationListResponseDataVerificationsInner
+     */
+    'id': string;
+    /**
+     *
+     * @type {WalletVerificationMethod}
+     * @memberof VerificationListResponseDataVerificationsInner
+     */
+    'method': WalletVerificationMethod;
+    /**
+     *
+     * @type {WalletVerificationStatus}
+     * @memberof VerificationListResponseDataVerificationsInner
+     */
+    'status': WalletVerificationStatus;
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationListResponseDataVerificationsInner
+     */
+    'initiatedAt': string;
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationListResponseDataVerificationsInner
+     */
+    'completedAt'?: string | null;
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationListResponseDataVerificationsInner
+     */
+    'expiresAt': string;
+}
+/**
+ *
+ * @export
+ * @interface VerificationProofData
+ */
+interface VerificationProofData {
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationProofData
+     */
+    'verificationId': string;
+    /**
+     *
+     * @type {WalletVerificationStatus}
+     * @memberof VerificationProofData
+     */
+    'status': WalletVerificationStatus;
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationProofData
+     */
+    'verifiedAt'?: string | null;
+    /**
+     *
+     * @type {VerificationProofDataWallet}
+     * @memberof VerificationProofData
+     */
+    'wallet': VerificationProofDataWallet;
+}
+/**
+ *
+ * @export
+ * @interface VerificationProofDataWallet
+ */
+interface VerificationProofDataWallet {
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationProofDataWallet
+     */
+    'id': string;
+    /**
+     *
+     * @type {boolean}
+     * @memberof VerificationProofDataWallet
+     */
+    'verified': boolean;
+    /**
+     *
+     * @type {WalletVerificationMethod}
+     * @memberof VerificationProofDataWallet
+     */
+    'verificationMethod'?: WalletVerificationMethod;
+}
+/**
+ *
+ * @export
+ * @interface VerificationProofResponse
+ */
+interface VerificationProofResponse {
+    /**
+     *
+     * @type {boolean}
+     * @memberof VerificationProofResponse
+     */
+    'success': boolean;
+    /**
+     *
+     * @type {VerificationProofData}
+     * @memberof VerificationProofResponse
+     */
+    'data': VerificationProofData;
+}
+/**
+ *
+ * @export
+ * @interface VerificationStatusData
+ */
+interface VerificationStatusData {
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationStatusData
+     */
+    'id': string;
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationStatusData
+     */
+    'walletId': string;
+    /**
+     *
+     * @type {WalletVerificationMethod}
+     * @memberof VerificationStatusData
+     */
+    'method': WalletVerificationMethod;
+    /**
+     *
+     * @type {WalletVerificationStatus}
+     * @memberof VerificationStatusData
+     */
+    'status': WalletVerificationStatus;
+    /**
+     *
+     * @type {MessageSignChallenge}
+     * @memberof VerificationStatusData
+     */
+    'challenge'?: MessageSignChallenge;
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationStatusData
+     */
+    'expiresAt': string;
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationStatusData
+     */
+    'completedAt'?: string | null;
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationStatusData
+     */
+    'failedAt'?: string | null;
+    /**
+     *
+     * @type {string}
+     * @memberof VerificationStatusData
+     */
+    'failureReason'?: string | null;
+}
+/**
+ *
+ * @export
+ * @interface VerificationStatusResponse
+ */
+interface VerificationStatusResponse {
+    /**
+     *
+     * @type {boolean}
+     * @memberof VerificationStatusResponse
+     */
+    'success': boolean;
+    /**
+     *
+     * @type {VerificationStatusData}
+     * @memberof VerificationStatusResponse
+     */
+    'data': VerificationStatusData;
+}
+/**
  * Aggregate wallet totals
  * @export
  * @interface WalletAggregate
@@ -8384,6 +8832,196 @@ interface WalletBalance {
      */
     'chain'?: string;
 }
+/**
+ *
+ * @export
+ * @interface WalletData
+ */
+interface WalletData {
+    /**
+     *
+     * @type {string}
+     * @memberof WalletData
+     */
+    'id': string;
+    /**
+     *
+     * @type {string}
+     * @memberof WalletData
+     */
+    'address': string;
+    /**
+     *
+     * @type {Chain}
+     * @memberof WalletData
+     */
+    'chain': Chain;
+    /**
+     *
+     * @type {WalletType}
+     * @memberof WalletData
+     */
+    'type': WalletType;
+    /**
+     * Global verification status (verified by ANY neobank)
+     * @type {boolean}
+     * @memberof WalletData
+     */
+    'verified': boolean;
+    /**
+     * Per-neobank verification status (verified by THIS neobank)
+     * @type {boolean}
+     * @memberof WalletData
+     */
+    'verifiedByThisNeobank': boolean;
+    /**
+     *
+     * @type {string}
+     * @memberof WalletData
+     */
+    'verifiedAt'?: string | null;
+    /**
+     *
+     * @type {WalletVerificationMethod}
+     * @memberof WalletData
+     */
+    'verificationMethod'?: WalletVerificationMethod;
+    /**
+     *
+     * @type {string}
+     * @memberof WalletData
+     */
+    'externalId'?: string | null;
+    /**
+     *
+     * @type {string}
+     * @memberof WalletData
+     */
+    'label'?: string | null;
+    /**
+     *
+     * @type {string}
+     * @memberof WalletData
+     */
+    'createdAt': string;
+}
+/**
+ *
+ * @export
+ * @interface WalletListResponse
+ */
+interface WalletListResponse {
+    /**
+     *
+     * @type {boolean}
+     * @memberof WalletListResponse
+     */
+    'success': boolean;
+    /**
+     *
+     * @type {WalletListResponseData}
+     * @memberof WalletListResponse
+     */
+    'data': WalletListResponseData;
+}
+/**
+ *
+ * @export
+ * @interface WalletListResponseData
+ */
+interface WalletListResponseData {
+    /**
+     *
+     * @type {Array<WalletData>}
+     * @memberof WalletListResponseData
+     */
+    'wallets': Array<WalletData>;
+    /**
+     *
+     * @type {WalletListResponseDataPagination}
+     * @memberof WalletListResponseData
+     */
+    'pagination': WalletListResponseDataPagination;
+}
+/**
+ *
+ * @export
+ * @interface WalletListResponseDataPagination
+ */
+interface WalletListResponseDataPagination {
+    /**
+     *
+     * @type {number}
+     * @memberof WalletListResponseDataPagination
+     */
+    'total': number;
+    /**
+     *
+     * @type {number}
+     * @memberof WalletListResponseDataPagination
+     */
+    'limit': number;
+    /**
+     *
+     * @type {number}
+     * @memberof WalletListResponseDataPagination
+     */
+    'offset': number;
+}
+/**
+ *
+ * @export
+ * @interface WalletResponse
+ */
+interface WalletResponse {
+    /**
+     *
+     * @type {boolean}
+     * @memberof WalletResponse
+     */
+    'success': boolean;
+    /**
+     *
+     * @type {WalletData}
+     * @memberof WalletResponse
+     */
+    'data': WalletData;
+}
+/**
+ * Wallet type determines verification method availability: - EMBEDDED_NON_CUSTODIAL: Privy, Dynamic, Turnkey - user has keys, embedded in neobank app - EMBEDDED_CUSTODIAL: Neobank/exchange holds keys for user - EXTERNAL_NON_CUSTODIAL: MetaMask, Ledger, Rainbow - user\'s own standalone wallet
+ * @export
+ * @enum {string}
+ */
+declare const WalletType: {
+    readonly EmbeddedNonCustodial: "EMBEDDED_NON_CUSTODIAL";
+    readonly EmbeddedCustodial: "EMBEDDED_CUSTODIAL";
+    readonly ExternalNonCustodial: "EXTERNAL_NON_CUSTODIAL";
+};
+type WalletType = typeof WalletType[keyof typeof WalletType];
+/**
+ * Verification method: - MESSAGE_SIGN: Cryptographic signature (zero cost, instant, self-custody only) - MICRO_DEPOSIT: Send small amount back (universal, high friction) - AOPP: Address Ownership Proof Protocol (FATF Travel Rule standard)
+ * @export
+ * @enum {string}
+ */
+declare const WalletVerificationMethod: {
+    readonly MessageSign: "MESSAGE_SIGN";
+    readonly MicroDeposit: "MICRO_DEPOSIT";
+    readonly Aopp: "AOPP";
+};
+type WalletVerificationMethod = typeof WalletVerificationMethod[keyof typeof WalletVerificationMethod];
+/**
+ * Verification status: - PENDING: Challenge issued, awaiting proof - AWAITING_CONFIRMATION: Micro-deposit tx seen, awaiting confirmations - VERIFIED: Successfully verified - FAILED: Verification failed - EXPIRED: Challenge expired
+ * @export
+ * @enum {string}
+ */
+declare const WalletVerificationStatus: {
+    readonly Pending: "PENDING";
+    readonly AwaitingConfirmation: "AWAITING_CONFIRMATION";
+    readonly Verified: "VERIFIED";
+    readonly Failed: "FAILED";
+    readonly Expired: "EXPIRED";
+};
+type WalletVerificationStatus = typeof WalletVerificationStatus[keyof typeof WalletVerificationStatus];
 /**
  * Response from POST /webhook/{provider}
  * @export
@@ -13414,6 +14052,543 @@ declare class TreasuryApi extends BaseAPI$1 implements TreasuryApiInterface {
      */
     getTreasuryTransactions(requestParameters?: TreasuryApiGetTreasuryTransactionsRequest, options?: RawAxiosRequestConfig): Promise<axios.AxiosResponse<TreasuryTransactionsResponse, any, {}>>;
 }
+/**
+ * WalletsApi - axios parameter creator
+ * @export
+ */
+declare const WalletsApiAxiosParamCreator: (configuration?: Configuration$1) => {
+    /**
+     * Register a wallet address for ownership verification. Idempotent - returns existing wallet if address+chain already exists, creates a neobank-specific link if needed.
+     * @summary Create or link a wallet
+     * @param {CreateWalletRequest} createWalletRequest
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createWallet: (createWalletRequest: CreateWalletRequest, options?: RawAxiosRequestConfig) => Promise<RequestArgs$1>;
+    /**
+     * Get the status of a verification attempt
+     * @summary Get verification status
+     * @param {string} verificationId Unique identifier for the verification attempt
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getVerification: (verificationId: string, options?: RawAxiosRequestConfig) => Promise<RequestArgs$1>;
+    /**
+     * Get a wallet by its ID (neobank must have link)
+     * @summary Get wallet by ID
+     * @param {string} id Unique identifier for the wallet
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getWallet: (id: string, options?: RawAxiosRequestConfig) => Promise<RequestArgs$1>;
+    /**
+     * Start wallet ownership verification process. Generates a challenge based on the verification method. For MESSAGE_SIGN: returns a message for the user to sign.
+     * @summary Initiate wallet verification
+     * @param {string} walletId
+     * @param {InitiateVerificationRequest} initiateVerificationRequest
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    initiateWalletVerification: (walletId: string, initiateVerificationRequest: InitiateVerificationRequest, options?: RawAxiosRequestConfig) => Promise<RequestArgs$1>;
+    /**
+     * List all verification attempts for a wallet (this neobank\'s verifications only)
+     * @summary List verifications for wallet
+     * @param {string} walletId
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    listWalletVerifications: (walletId: string, options?: RawAxiosRequestConfig) => Promise<RequestArgs$1>;
+    /**
+     * List wallets linked to this neobank with optional filters
+     * @summary List wallets
+     * @param {boolean} [verified] Filter by global verification status
+     * @param {Chain} [chain] Filter by blockchain
+     * @param {string} [externalId] Filter by neobank\&#39;s external reference ID
+     * @param {string} [address] Partial address match (case-insensitive)
+     * @param {number} [limit]
+     * @param {number} [offset]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    listWallets: (verified?: boolean, chain?: Chain, externalId?: string, address?: string, limit?: number, offset?: number, options?: RawAxiosRequestConfig) => Promise<RequestArgs$1>;
+    /**
+     * Submit proof to complete wallet verification. For MESSAGE_SIGN: submit the wallet signature.
+     * @summary Submit verification proof
+     * @param {string} verificationId Unique identifier for the verification attempt
+     * @param {SubmitProofRequest} submitProofRequest
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    submitVerificationProof: (verificationId: string, submitProofRequest: SubmitProofRequest, options?: RawAxiosRequestConfig) => Promise<RequestArgs$1>;
+    /**
+     * Update neobank-specific metadata (externalId, label, metadata)
+     * @summary Update wallet metadata
+     * @param {string} id Unique identifier for the wallet
+     * @param {UpdateWalletRequest} updateWalletRequest
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateWallet: (id: string, updateWalletRequest: UpdateWalletRequest, options?: RawAxiosRequestConfig) => Promise<RequestArgs$1>;
+};
+/**
+ * WalletsApi - functional programming interface
+ * @export
+ */
+declare const WalletsApiFp: (configuration?: Configuration$1) => {
+    /**
+     * Register a wallet address for ownership verification. Idempotent - returns existing wallet if address+chain already exists, creates a neobank-specific link if needed.
+     * @summary Create or link a wallet
+     * @param {CreateWalletRequest} createWalletRequest
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createWallet(createWalletRequest: CreateWalletRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletResponse>>;
+    /**
+     * Get the status of a verification attempt
+     * @summary Get verification status
+     * @param {string} verificationId Unique identifier for the verification attempt
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getVerification(verificationId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VerificationStatusResponse>>;
+    /**
+     * Get a wallet by its ID (neobank must have link)
+     * @summary Get wallet by ID
+     * @param {string} id Unique identifier for the wallet
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getWallet(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletResponse>>;
+    /**
+     * Start wallet ownership verification process. Generates a challenge based on the verification method. For MESSAGE_SIGN: returns a message for the user to sign.
+     * @summary Initiate wallet verification
+     * @param {string} walletId
+     * @param {InitiateVerificationRequest} initiateVerificationRequest
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    initiateWalletVerification(walletId: string, initiateVerificationRequest: InitiateVerificationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VerificationChallengeResponse>>;
+    /**
+     * List all verification attempts for a wallet (this neobank\'s verifications only)
+     * @summary List verifications for wallet
+     * @param {string} walletId
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    listWalletVerifications(walletId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VerificationListResponse>>;
+    /**
+     * List wallets linked to this neobank with optional filters
+     * @summary List wallets
+     * @param {boolean} [verified] Filter by global verification status
+     * @param {Chain} [chain] Filter by blockchain
+     * @param {string} [externalId] Filter by neobank\&#39;s external reference ID
+     * @param {string} [address] Partial address match (case-insensitive)
+     * @param {number} [limit]
+     * @param {number} [offset]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    listWallets(verified?: boolean, chain?: Chain, externalId?: string, address?: string, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletListResponse>>;
+    /**
+     * Submit proof to complete wallet verification. For MESSAGE_SIGN: submit the wallet signature.
+     * @summary Submit verification proof
+     * @param {string} verificationId Unique identifier for the verification attempt
+     * @param {SubmitProofRequest} submitProofRequest
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    submitVerificationProof(verificationId: string, submitProofRequest: SubmitProofRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VerificationProofResponse>>;
+    /**
+     * Update neobank-specific metadata (externalId, label, metadata)
+     * @summary Update wallet metadata
+     * @param {string} id Unique identifier for the wallet
+     * @param {UpdateWalletRequest} updateWalletRequest
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateWallet(id: string, updateWalletRequest: UpdateWalletRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletResponse>>;
+};
+/**
+ * WalletsApi - factory interface
+ * @export
+ */
+declare const WalletsApiFactory: (configuration?: Configuration$1, basePath?: string, axios?: AxiosInstance) => {
+    /**
+     * Register a wallet address for ownership verification. Idempotent - returns existing wallet if address+chain already exists, creates a neobank-specific link if needed.
+     * @summary Create or link a wallet
+     * @param {WalletsApiCreateWalletRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createWallet(requestParameters: WalletsApiCreateWalletRequest, options?: RawAxiosRequestConfig): AxiosPromise<WalletResponse>;
+    /**
+     * Get the status of a verification attempt
+     * @summary Get verification status
+     * @param {WalletsApiGetVerificationRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getVerification(requestParameters: WalletsApiGetVerificationRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationStatusResponse>;
+    /**
+     * Get a wallet by its ID (neobank must have link)
+     * @summary Get wallet by ID
+     * @param {WalletsApiGetWalletRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getWallet(requestParameters: WalletsApiGetWalletRequest, options?: RawAxiosRequestConfig): AxiosPromise<WalletResponse>;
+    /**
+     * Start wallet ownership verification process. Generates a challenge based on the verification method. For MESSAGE_SIGN: returns a message for the user to sign.
+     * @summary Initiate wallet verification
+     * @param {WalletsApiInitiateWalletVerificationRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    initiateWalletVerification(requestParameters: WalletsApiInitiateWalletVerificationRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationChallengeResponse>;
+    /**
+     * List all verification attempts for a wallet (this neobank\'s verifications only)
+     * @summary List verifications for wallet
+     * @param {WalletsApiListWalletVerificationsRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    listWalletVerifications(requestParameters: WalletsApiListWalletVerificationsRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationListResponse>;
+    /**
+     * List wallets linked to this neobank with optional filters
+     * @summary List wallets
+     * @param {WalletsApiListWalletsRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    listWallets(requestParameters?: WalletsApiListWalletsRequest, options?: RawAxiosRequestConfig): AxiosPromise<WalletListResponse>;
+    /**
+     * Submit proof to complete wallet verification. For MESSAGE_SIGN: submit the wallet signature.
+     * @summary Submit verification proof
+     * @param {WalletsApiSubmitVerificationProofRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    submitVerificationProof(requestParameters: WalletsApiSubmitVerificationProofRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationProofResponse>;
+    /**
+     * Update neobank-specific metadata (externalId, label, metadata)
+     * @summary Update wallet metadata
+     * @param {WalletsApiUpdateWalletRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateWallet(requestParameters: WalletsApiUpdateWalletRequest, options?: RawAxiosRequestConfig): AxiosPromise<WalletResponse>;
+};
+/**
+ * WalletsApi - interface
+ * @export
+ * @interface WalletsApi
+ */
+interface WalletsApiInterface {
+    /**
+     * Register a wallet address for ownership verification. Idempotent - returns existing wallet if address+chain already exists, creates a neobank-specific link if needed.
+     * @summary Create or link a wallet
+     * @param {WalletsApiCreateWalletRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    createWallet(requestParameters: WalletsApiCreateWalletRequest, options?: RawAxiosRequestConfig): AxiosPromise<WalletResponse>;
+    /**
+     * Get the status of a verification attempt
+     * @summary Get verification status
+     * @param {WalletsApiGetVerificationRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    getVerification(requestParameters: WalletsApiGetVerificationRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationStatusResponse>;
+    /**
+     * Get a wallet by its ID (neobank must have link)
+     * @summary Get wallet by ID
+     * @param {WalletsApiGetWalletRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    getWallet(requestParameters: WalletsApiGetWalletRequest, options?: RawAxiosRequestConfig): AxiosPromise<WalletResponse>;
+    /**
+     * Start wallet ownership verification process. Generates a challenge based on the verification method. For MESSAGE_SIGN: returns a message for the user to sign.
+     * @summary Initiate wallet verification
+     * @param {WalletsApiInitiateWalletVerificationRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    initiateWalletVerification(requestParameters: WalletsApiInitiateWalletVerificationRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationChallengeResponse>;
+    /**
+     * List all verification attempts for a wallet (this neobank\'s verifications only)
+     * @summary List verifications for wallet
+     * @param {WalletsApiListWalletVerificationsRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    listWalletVerifications(requestParameters: WalletsApiListWalletVerificationsRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationListResponse>;
+    /**
+     * List wallets linked to this neobank with optional filters
+     * @summary List wallets
+     * @param {WalletsApiListWalletsRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    listWallets(requestParameters?: WalletsApiListWalletsRequest, options?: RawAxiosRequestConfig): AxiosPromise<WalletListResponse>;
+    /**
+     * Submit proof to complete wallet verification. For MESSAGE_SIGN: submit the wallet signature.
+     * @summary Submit verification proof
+     * @param {WalletsApiSubmitVerificationProofRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    submitVerificationProof(requestParameters: WalletsApiSubmitVerificationProofRequest, options?: RawAxiosRequestConfig): AxiosPromise<VerificationProofResponse>;
+    /**
+     * Update neobank-specific metadata (externalId, label, metadata)
+     * @summary Update wallet metadata
+     * @param {WalletsApiUpdateWalletRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApiInterface
+     */
+    updateWallet(requestParameters: WalletsApiUpdateWalletRequest, options?: RawAxiosRequestConfig): AxiosPromise<WalletResponse>;
+}
+/**
+ * Request parameters for createWallet operation in WalletsApi.
+ * @export
+ * @interface WalletsApiCreateWalletRequest
+ */
+interface WalletsApiCreateWalletRequest {
+    /**
+     *
+     * @type {CreateWalletRequest}
+     * @memberof WalletsApiCreateWallet
+     */
+    readonly createWalletRequest: CreateWalletRequest;
+}
+/**
+ * Request parameters for getVerification operation in WalletsApi.
+ * @export
+ * @interface WalletsApiGetVerificationRequest
+ */
+interface WalletsApiGetVerificationRequest {
+    /**
+     * Unique identifier for the verification attempt
+     * @type {string}
+     * @memberof WalletsApiGetVerification
+     */
+    readonly verificationId: string;
+}
+/**
+ * Request parameters for getWallet operation in WalletsApi.
+ * @export
+ * @interface WalletsApiGetWalletRequest
+ */
+interface WalletsApiGetWalletRequest {
+    /**
+     * Unique identifier for the wallet
+     * @type {string}
+     * @memberof WalletsApiGetWallet
+     */
+    readonly id: string;
+}
+/**
+ * Request parameters for initiateWalletVerification operation in WalletsApi.
+ * @export
+ * @interface WalletsApiInitiateWalletVerificationRequest
+ */
+interface WalletsApiInitiateWalletVerificationRequest {
+    /**
+     *
+     * @type {string}
+     * @memberof WalletsApiInitiateWalletVerification
+     */
+    readonly walletId: string;
+    /**
+     *
+     * @type {InitiateVerificationRequest}
+     * @memberof WalletsApiInitiateWalletVerification
+     */
+    readonly initiateVerificationRequest: InitiateVerificationRequest;
+}
+/**
+ * Request parameters for listWalletVerifications operation in WalletsApi.
+ * @export
+ * @interface WalletsApiListWalletVerificationsRequest
+ */
+interface WalletsApiListWalletVerificationsRequest {
+    /**
+     *
+     * @type {string}
+     * @memberof WalletsApiListWalletVerifications
+     */
+    readonly walletId: string;
+}
+/**
+ * Request parameters for listWallets operation in WalletsApi.
+ * @export
+ * @interface WalletsApiListWalletsRequest
+ */
+interface WalletsApiListWalletsRequest {
+    /**
+     * Filter by global verification status
+     * @type {boolean}
+     * @memberof WalletsApiListWallets
+     */
+    readonly verified?: boolean;
+    /**
+     * Filter by blockchain
+     * @type {Chain}
+     * @memberof WalletsApiListWallets
+     */
+    readonly chain?: Chain;
+    /**
+     * Filter by neobank\&#39;s external reference ID
+     * @type {string}
+     * @memberof WalletsApiListWallets
+     */
+    readonly externalId?: string;
+    /**
+     * Partial address match (case-insensitive)
+     * @type {string}
+     * @memberof WalletsApiListWallets
+     */
+    readonly address?: string;
+    /**
+     *
+     * @type {number}
+     * @memberof WalletsApiListWallets
+     */
+    readonly limit?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof WalletsApiListWallets
+     */
+    readonly offset?: number;
+}
+/**
+ * Request parameters for submitVerificationProof operation in WalletsApi.
+ * @export
+ * @interface WalletsApiSubmitVerificationProofRequest
+ */
+interface WalletsApiSubmitVerificationProofRequest {
+    /**
+     * Unique identifier for the verification attempt
+     * @type {string}
+     * @memberof WalletsApiSubmitVerificationProof
+     */
+    readonly verificationId: string;
+    /**
+     *
+     * @type {SubmitProofRequest}
+     * @memberof WalletsApiSubmitVerificationProof
+     */
+    readonly submitProofRequest: SubmitProofRequest;
+}
+/**
+ * Request parameters for updateWallet operation in WalletsApi.
+ * @export
+ * @interface WalletsApiUpdateWalletRequest
+ */
+interface WalletsApiUpdateWalletRequest {
+    /**
+     * Unique identifier for the wallet
+     * @type {string}
+     * @memberof WalletsApiUpdateWallet
+     */
+    readonly id: string;
+    /**
+     *
+     * @type {UpdateWalletRequest}
+     * @memberof WalletsApiUpdateWallet
+     */
+    readonly updateWalletRequest: UpdateWalletRequest;
+}
+/**
+ * WalletsApi - object-oriented interface
+ * @export
+ * @class WalletsApi
+ * @extends {BaseAPI}
+ */
+declare class WalletsApi extends BaseAPI$1 implements WalletsApiInterface {
+    /**
+     * Register a wallet address for ownership verification. Idempotent - returns existing wallet if address+chain already exists, creates a neobank-specific link if needed.
+     * @summary Create or link a wallet
+     * @param {WalletsApiCreateWalletRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    createWallet(requestParameters: WalletsApiCreateWalletRequest, options?: RawAxiosRequestConfig): Promise<axios.AxiosResponse<WalletResponse, any, {}>>;
+    /**
+     * Get the status of a verification attempt
+     * @summary Get verification status
+     * @param {WalletsApiGetVerificationRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    getVerification(requestParameters: WalletsApiGetVerificationRequest, options?: RawAxiosRequestConfig): Promise<axios.AxiosResponse<VerificationStatusResponse, any, {}>>;
+    /**
+     * Get a wallet by its ID (neobank must have link)
+     * @summary Get wallet by ID
+     * @param {WalletsApiGetWalletRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    getWallet(requestParameters: WalletsApiGetWalletRequest, options?: RawAxiosRequestConfig): Promise<axios.AxiosResponse<WalletResponse, any, {}>>;
+    /**
+     * Start wallet ownership verification process. Generates a challenge based on the verification method. For MESSAGE_SIGN: returns a message for the user to sign.
+     * @summary Initiate wallet verification
+     * @param {WalletsApiInitiateWalletVerificationRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    initiateWalletVerification(requestParameters: WalletsApiInitiateWalletVerificationRequest, options?: RawAxiosRequestConfig): Promise<axios.AxiosResponse<VerificationChallengeResponse, any, {}>>;
+    /**
+     * List all verification attempts for a wallet (this neobank\'s verifications only)
+     * @summary List verifications for wallet
+     * @param {WalletsApiListWalletVerificationsRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    listWalletVerifications(requestParameters: WalletsApiListWalletVerificationsRequest, options?: RawAxiosRequestConfig): Promise<axios.AxiosResponse<VerificationListResponse, any, {}>>;
+    /**
+     * List wallets linked to this neobank with optional filters
+     * @summary List wallets
+     * @param {WalletsApiListWalletsRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    listWallets(requestParameters?: WalletsApiListWalletsRequest, options?: RawAxiosRequestConfig): Promise<axios.AxiosResponse<WalletListResponse, any, {}>>;
+    /**
+     * Submit proof to complete wallet verification. For MESSAGE_SIGN: submit the wallet signature.
+     * @summary Submit verification proof
+     * @param {WalletsApiSubmitVerificationProofRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    submitVerificationProof(requestParameters: WalletsApiSubmitVerificationProofRequest, options?: RawAxiosRequestConfig): Promise<axios.AxiosResponse<VerificationProofResponse, any, {}>>;
+    /**
+     * Update neobank-specific metadata (externalId, label, metadata)
+     * @summary Update wallet metadata
+     * @param {WalletsApiUpdateWalletRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WalletsApi
+     */
+    updateWallet(requestParameters: WalletsApiUpdateWalletRequest, options?: RawAxiosRequestConfig): Promise<axios.AxiosResponse<WalletResponse, any, {}>>;
+}
 
 /**
  * Passage by Portola - Public API
@@ -13498,6 +14673,7 @@ type index$1_BridgeRepaymentListResponseData = BridgeRepaymentListResponseData;
 type index$1_BridgeRepaymentListResponseDataPagination = BridgeRepaymentListResponseDataPagination;
 type index$1_BridgeRepaymentListResponseDataSummary = BridgeRepaymentListResponseDataSummary;
 type index$1_BridgeRepaymentReceipt = BridgeRepaymentReceipt;
+type index$1_Chain = Chain;
 type index$1_CompleteSigningSessionRequest = CompleteSigningSessionRequest;
 type index$1_ConfirmESignComplete200Response = ConfirmESignComplete200Response;
 type index$1_ConfirmESignComplete200ResponseData = ConfirmESignComplete200ResponseData;
@@ -13505,6 +14681,7 @@ type index$1_ConfirmESignComplete200ResponseDataStatusEnum = ConfirmESignComplet
 type index$1_ConsentToFunding200Response = ConsentToFunding200Response;
 type index$1_ConsentToFunding200ResponseData = ConsentToFunding200ResponseData;
 type index$1_CreateSigningSessionRequest = CreateSigningSessionRequest;
+type index$1_CreateWalletRequest = CreateWalletRequest;
 type index$1_DeclineApplication200Response = DeclineApplication200Response;
 type index$1_DeclineApplication200ResponseData = DeclineApplication200ResponseData;
 type index$1_DeclineApplication200ResponseDataStatusEnum = DeclineApplication200ResponseDataStatusEnum;
@@ -13579,6 +14756,7 @@ type index$1_GetPlatformPublicKey200Response = GetPlatformPublicKey200Response;
 type index$1_GetPlatformPublicKey200ResponseData = GetPlatformPublicKey200ResponseData;
 type index$1_InfraStats = InfraStats;
 type index$1_InitiateKYCRequest = InitiateKYCRequest;
+type index$1_InitiateVerificationRequest = InitiateVerificationRequest;
 type index$1_KYCHandleRequest = KYCHandleRequest;
 type index$1_KYCHandleResponse = KYCHandleResponse;
 type index$1_KYCHandleResponseData = KYCHandleResponseData;
@@ -13671,6 +14849,8 @@ type index$1_LoansApiListLoansRequest = LoansApiListLoansRequest;
 type index$1_LoansApiSweepLoanWalletRequest = LoansApiSweepLoanWalletRequest;
 type index$1_LoansApiUpdateLoanTermsRequest = LoansApiUpdateLoanTermsRequest;
 type index$1_MainWallet = MainWallet;
+type index$1_MessageSignChallenge = MessageSignChallenge;
+type index$1_MessageSignChallengeSigningStandardEnum = MessageSignChallengeSigningStandardEnum;
 type index$1_ModelError = ModelError;
 type index$1_NeobankAccountResponse = NeobankAccountResponse;
 type index$1_NeobankAccountResponseData = NeobankAccountResponseData;
@@ -13804,6 +14984,7 @@ type index$1_SigningSessionsListResponse = SigningSessionsListResponse;
 type index$1_SigningSessionsListResponseData = SigningSessionsListResponseData;
 type index$1_SigningSessionsListResponseDataSessionsInner = SigningSessionsListResponseDataSessionsInner;
 type index$1_SigningSessionsListResponseDataSessionsInnerStatusEnum = SigningSessionsListResponseDataSessionsInnerStatusEnum;
+type index$1_SubmitProofRequest = SubmitProofRequest;
 type index$1_SweepPreviewResponse = SweepPreviewResponse;
 type index$1_SweepPreviewResponseData = SweepPreviewResponseData;
 type index$1_SweepPreviewResponseDataMasterWallet = SweepPreviewResponseDataMasterWallet;
@@ -13871,12 +15052,45 @@ type index$1_UnsignedDocHandleResponse = UnsignedDocHandleResponse;
 type index$1_UnsignedDocHandleResponseData = UnsignedDocHandleResponseData;
 type index$1_UnsignedDocumentHandleRequest = UnsignedDocumentHandleRequest;
 type index$1_UpdateApplicationStatusRequest = UpdateApplicationStatusRequest;
+type index$1_UpdateWalletRequest = UpdateWalletRequest;
 type index$1_ValidationErrorResponse = ValidationErrorResponse;
 type index$1_ValidationErrorResponseAllOfDetails = ValidationErrorResponseAllOfDetails;
 type index$1_ValidationErrorResponseErrorEnum = ValidationErrorResponseErrorEnum;
 type index$1_ValidationErrorResponseStatusEnum = ValidationErrorResponseStatusEnum;
+type index$1_VerificationChallengeData = VerificationChallengeData;
+type index$1_VerificationChallengeResponse = VerificationChallengeResponse;
+type index$1_VerificationListResponse = VerificationListResponse;
+type index$1_VerificationListResponseData = VerificationListResponseData;
+type index$1_VerificationListResponseDataVerificationsInner = VerificationListResponseDataVerificationsInner;
+type index$1_VerificationProofData = VerificationProofData;
+type index$1_VerificationProofDataWallet = VerificationProofDataWallet;
+type index$1_VerificationProofResponse = VerificationProofResponse;
+type index$1_VerificationStatusData = VerificationStatusData;
+type index$1_VerificationStatusResponse = VerificationStatusResponse;
 type index$1_WalletAggregate = WalletAggregate;
 type index$1_WalletBalance = WalletBalance;
+type index$1_WalletData = WalletData;
+type index$1_WalletListResponse = WalletListResponse;
+type index$1_WalletListResponseData = WalletListResponseData;
+type index$1_WalletListResponseDataPagination = WalletListResponseDataPagination;
+type index$1_WalletResponse = WalletResponse;
+type index$1_WalletType = WalletType;
+type index$1_WalletVerificationMethod = WalletVerificationMethod;
+type index$1_WalletVerificationStatus = WalletVerificationStatus;
+type index$1_WalletsApi = WalletsApi;
+declare const index$1_WalletsApi: typeof WalletsApi;
+declare const index$1_WalletsApiAxiosParamCreator: typeof WalletsApiAxiosParamCreator;
+type index$1_WalletsApiCreateWalletRequest = WalletsApiCreateWalletRequest;
+declare const index$1_WalletsApiFactory: typeof WalletsApiFactory;
+declare const index$1_WalletsApiFp: typeof WalletsApiFp;
+type index$1_WalletsApiGetVerificationRequest = WalletsApiGetVerificationRequest;
+type index$1_WalletsApiGetWalletRequest = WalletsApiGetWalletRequest;
+type index$1_WalletsApiInitiateWalletVerificationRequest = WalletsApiInitiateWalletVerificationRequest;
+type index$1_WalletsApiInterface = WalletsApiInterface;
+type index$1_WalletsApiListWalletVerificationsRequest = WalletsApiListWalletVerificationsRequest;
+type index$1_WalletsApiListWalletsRequest = WalletsApiListWalletsRequest;
+type index$1_WalletsApiSubmitVerificationProofRequest = WalletsApiSubmitVerificationProofRequest;
+type index$1_WalletsApiUpdateWalletRequest = WalletsApiUpdateWalletRequest;
 type index$1_WebhookAckResponse = WebhookAckResponse;
 type index$1_WebhookConfigResponse = WebhookConfigResponse;
 type index$1_WebhookConfigResponseData = WebhookConfigResponseData;
@@ -13888,7 +15102,7 @@ type index$1_WebhookUrlUpdateRequest = WebhookUrlUpdateRequest;
 type index$1_WebhookUrlUpdateResponse = WebhookUrlUpdateResponse;
 type index$1_WebhookUrlUpdateResponseData = WebhookUrlUpdateResponseData;
 declare namespace index$1 {
-  export { type index$1_AllWalletsData as AllWalletsData, type index$1_AllWalletsResponse as AllWalletsResponse, type index$1_ApplicationListItem as ApplicationListItem, type index$1_ApplicationListItemProductTypeEnum as ApplicationListItemProductTypeEnum, type index$1_ApplicationRequest as ApplicationRequest, type index$1_ApplicationRequestBorrowerWalletChainEnum as ApplicationRequestBorrowerWalletChainEnum, type index$1_ApplicationRequestEncryptedPayloadsInner as ApplicationRequestEncryptedPayloadsInner, type index$1_ApplicationRequestProductTypeEnum as ApplicationRequestProductTypeEnum, type index$1_ApplicationResponse as ApplicationResponse, type index$1_ApplicationResponseData as ApplicationResponseData, type index$1_ApplicationResponseDataEncryptedPayload as ApplicationResponseDataEncryptedPayload, type index$1_ApplicationResponseDataProductTypeEnum as ApplicationResponseDataProductTypeEnum, type index$1_ApplicationResponseDataWalletTypeEnum as ApplicationResponseDataWalletTypeEnum, type index$1_ApplicationStatus as ApplicationStatus, type index$1_ApplicationStatusResponse as ApplicationStatusResponse, type index$1_ApplicationStatusResponseData as ApplicationStatusResponseData, type index$1_ApplicationStatusUpdateResponse as ApplicationStatusUpdateResponse, type index$1_ApplicationStatusUpdateResponseData as ApplicationStatusUpdateResponseData, type index$1_ApplicationSubmitResponse as ApplicationSubmitResponse, type index$1_ApplicationSubmitResponseData as ApplicationSubmitResponseData, index$1_ApplicationsApi as ApplicationsApi, index$1_ApplicationsApiAxiosParamCreator as ApplicationsApiAxiosParamCreator, type index$1_ApplicationsApiDeclineApplicationRequest as ApplicationsApiDeclineApplicationRequest, index$1_ApplicationsApiFactory as ApplicationsApiFactory, index$1_ApplicationsApiFp as ApplicationsApiFp, type index$1_ApplicationsApiGetApplicationRequest as ApplicationsApiGetApplicationRequest, type index$1_ApplicationsApiGetApplicationStatusRequest as ApplicationsApiGetApplicationStatusRequest, type index$1_ApplicationsApiGetHardPullConsentRequest as ApplicationsApiGetHardPullConsentRequest, type index$1_ApplicationsApiInterface as ApplicationsApiInterface, type index$1_ApplicationsApiListApplicationsRequest as ApplicationsApiListApplicationsRequest, type index$1_ApplicationsApiSubmitApplicationRequest as ApplicationsApiSubmitApplicationRequest, type index$1_ApplicationsApiSubmitDraftApplicationRequest as ApplicationsApiSubmitDraftApplicationRequest, type index$1_ApplicationsApiUpdateApplicationStatusRequest as ApplicationsApiUpdateApplicationStatusRequest, type index$1_Attestation as Attestation, index$1_AttestationApi as AttestationApi, index$1_AttestationApiAxiosParamCreator as AttestationApiAxiosParamCreator, type index$1_AttestationApiConfigureLenderTrustRequest as AttestationApiConfigureLenderTrustRequest, type index$1_AttestationApiEvaluateAttestationTrustRequest as AttestationApiEvaluateAttestationTrustRequest, index$1_AttestationApiFactory as AttestationApiFactory, index$1_AttestationApiFp as AttestationApiFp, type index$1_AttestationApiGetAttestationsRequest as AttestationApiGetAttestationsRequest, type index$1_AttestationApiGetKYCStatusRequest as AttestationApiGetKYCStatusRequest, type index$1_AttestationApiGetProofAccessTokenRequest as AttestationApiGetProofAccessTokenRequest, type index$1_AttestationApiInitiateKYCRequest as AttestationApiInitiateKYCRequest, type index$1_AttestationApiInterface as AttestationApiInterface, type index$1_AttestationApiKycProviderWebhookRequest as AttestationApiKycProviderWebhookRequest, type index$1_AttestationApiStoreAttestationRequest as AttestationApiStoreAttestationRequest, type index$1_AttestationProvider as AttestationProvider, type index$1_AttestationTrustEvaluation as AttestationTrustEvaluation, type index$1_AttestationVerification as AttestationVerification, type index$1_AttestationVerificationStatusEnum as AttestationVerificationStatusEnum, type index$1_AttestationVerificationTypeEnum as AttestationVerificationTypeEnum, type index$1_AttestationsResponse as AttestationsResponse, type index$1_AttestationsResponseData as AttestationsResponseData, type index$1_AttestationsSummary as AttestationsSummary, type index$1_BatchGetLenderPublicKeysRequest as BatchGetLenderPublicKeysRequest, type index$1_BatchGetNeobankPublicKeysRequest as BatchGetNeobankPublicKeysRequest, type index$1_BatchLenderKeysResponse as BatchLenderKeysResponse, type index$1_BatchLenderKeysResponseData as BatchLenderKeysResponseData, type index$1_BatchLenderKeysResponseDataKeysValue as BatchLenderKeysResponseDataKeysValue, type index$1_BatchNeobankKeysResponse as BatchNeobankKeysResponse, type index$1_BatchNeobankKeysResponseData as BatchNeobankKeysResponseData, type index$1_BatchNeobankKeysResponseDataKeysValue as BatchNeobankKeysResponseDataKeysValue, type index$1_BridgeRepayment as BridgeRepayment, type index$1_BridgeRepaymentListResponse as BridgeRepaymentListResponse, type index$1_BridgeRepaymentListResponseData as BridgeRepaymentListResponseData, type index$1_BridgeRepaymentListResponseDataPagination as BridgeRepaymentListResponseDataPagination, type index$1_BridgeRepaymentListResponseDataSummary as BridgeRepaymentListResponseDataSummary, type index$1_BridgeRepaymentReceipt as BridgeRepaymentReceipt, type index$1_CompleteSigningSessionRequest as CompleteSigningSessionRequest, Configuration$1 as Configuration, type ConfigurationParameters$1 as ConfigurationParameters, type index$1_ConfirmESignComplete200Response as ConfirmESignComplete200Response, type index$1_ConfirmESignComplete200ResponseData as ConfirmESignComplete200ResponseData, type index$1_ConfirmESignComplete200ResponseDataStatusEnum as ConfirmESignComplete200ResponseDataStatusEnum, type index$1_ConsentToFunding200Response as ConsentToFunding200Response, type index$1_ConsentToFunding200ResponseData as ConsentToFunding200ResponseData, type index$1_CreateSigningSessionRequest as CreateSigningSessionRequest, type index$1_DeclineApplication200Response as DeclineApplication200Response, type index$1_DeclineApplication200ResponseData as DeclineApplication200ResponseData, type index$1_DeclineApplication200ResponseDataStatusEnum as DeclineApplication200ResponseDataStatusEnum, type index$1_DeclineApplicationRequest as DeclineApplicationRequest, type index$1_DeclineFunding200Response as DeclineFunding200Response, type index$1_DeclineFunding200ResponseData as DeclineFunding200ResponseData, type index$1_DeclineFundingRequest as DeclineFundingRequest, type index$1_DeclinedApplicationsResponse as DeclinedApplicationsResponse, type index$1_DeclinedApplicationsResponseData as DeclinedApplicationsResponseData, type index$1_DeclinedApplicationsResponseDataApplicationsInner as DeclinedApplicationsResponseDataApplicationsInner, type index$1_DeclinedApplicationsResponseDataApplicationsInnerProductTypeEnum as DeclinedApplicationsResponseDataApplicationsInnerProductTypeEnum, type index$1_DeclinedApplicationsResponseDataPagination as DeclinedApplicationsResponseDataPagination, type index$1_DraftSubmitRequest as DraftSubmitRequest, type index$1_DraftSubmitRequestPerLenderKycHandlesInner as DraftSubmitRequestPerLenderKycHandlesInner, type index$1_DraftSubmitResponse as DraftSubmitResponse, type index$1_DraftSubmitResponseData as DraftSubmitResponseData, type index$1_EmergencyRevokeKeyRequest as EmergencyRevokeKeyRequest, type index$1_EmergencyRevokeKeyRequestReasonEnum as EmergencyRevokeKeyRequestReasonEnum, type index$1_EncryptedOffer as EncryptedOffer, type index$1_EncryptedOfferOfferTypeEnum as EncryptedOfferOfferTypeEnum, type index$1_EncryptedOfferSubmission as EncryptedOfferSubmission, type index$1_EncryptedOffersResponse as EncryptedOffersResponse, type index$1_EncryptedOffersResponseData as EncryptedOffersResponseData, type index$1_EncryptedOffersResponseDataLendersInner as EncryptedOffersResponseDataLendersInner, type index$1_EncryptedOffersResponseDataOfferTypeEnum as EncryptedOffersResponseDataOfferTypeEnum, index$1_EntityDiscoveryApi as EntityDiscoveryApi, index$1_EntityDiscoveryApiAxiosParamCreator as EntityDiscoveryApiAxiosParamCreator, type index$1_EntityDiscoveryApiBatchGetLenderPublicKeysRequest as EntityDiscoveryApiBatchGetLenderPublicKeysRequest, type index$1_EntityDiscoveryApiBatchGetNeobankPublicKeysRequest as EntityDiscoveryApiBatchGetNeobankPublicKeysRequest, index$1_EntityDiscoveryApiFactory as EntityDiscoveryApiFactory, index$1_EntityDiscoveryApiFp as EntityDiscoveryApiFp, type index$1_EntityDiscoveryApiGetLenderDetailsRequest as EntityDiscoveryApiGetLenderDetailsRequest, type index$1_EntityDiscoveryApiGetLenderPublicKeyRequest as EntityDiscoveryApiGetLenderPublicKeyRequest, type index$1_EntityDiscoveryApiGetNeobankDetailsRequest as EntityDiscoveryApiGetNeobankDetailsRequest, type index$1_EntityDiscoveryApiGetNeobankPublicKeyRequest as EntityDiscoveryApiGetNeobankPublicKeyRequest, type index$1_EntityDiscoveryApiInterface as EntityDiscoveryApiInterface, type index$1_EntityDiscoveryApiListLendersRequest as EntityDiscoveryApiListLendersRequest, type index$1_EntityDiscoveryApiListNeobanksForLendersRequest as EntityDiscoveryApiListNeobanksForLendersRequest, type index$1_ErrorDetailsInner as ErrorDetailsInner, type ErrorResponse$1 as ErrorResponse, type index$1_FinalOfferSubmission as FinalOfferSubmission, type index$1_FinalOfferSubmissionOffersInner as FinalOfferSubmissionOffersInner, index$1_FundingApi as FundingApi, index$1_FundingApiAxiosParamCreator as FundingApiAxiosParamCreator, type index$1_FundingApiConsentToFundingRequest as FundingApiConsentToFundingRequest, type index$1_FundingApiDeclineFundingRequest as FundingApiDeclineFundingRequest, index$1_FundingApiFactory as FundingApiFactory, index$1_FundingApiFp as FundingApiFp, type index$1_FundingApiGetFundingByIdRequest as FundingApiGetFundingByIdRequest, type index$1_FundingApiInterface as FundingApiInterface, type index$1_FundingRecord as FundingRecord, type index$1_FundingRecordApplication as FundingRecordApplication, type index$1_FundingRecordStatusEnum as FundingRecordStatusEnum, type index$1_GetAccountStats200Response as GetAccountStats200Response, type index$1_GetAccountStats200ResponseData as GetAccountStats200ResponseData, type index$1_GetAccountStats200ResponseDataApplications as GetAccountStats200ResponseDataApplications, type index$1_GetAccountStats200ResponseDataBorrowers as GetAccountStats200ResponseDataBorrowers, type index$1_GetAccountStats200ResponseDataLoans as GetAccountStats200ResponseDataLoans, type index$1_GetESignUrl200Response as GetESignUrl200Response, type index$1_GetESignUrl200ResponseData as GetESignUrl200ResponseData, type index$1_GetESignUrl200ResponseDataDocumentsInner as GetESignUrl200ResponseDataDocumentsInner, type index$1_GetESignUrl200ResponseDataEmbedMode as GetESignUrl200ResponseDataEmbedMode, type index$1_GetFundingById200Response as GetFundingById200Response, type index$1_GetHardPullConsent200Response as GetHardPullConsent200Response, type index$1_GetHardPullConsent200ResponseData as GetHardPullConsent200ResponseData, type index$1_GetHardPullConsent200ResponseDataConsent as GetHardPullConsent200ResponseDataConsent, type index$1_GetHardPullConsent200ResponseDataOfferTypeEnum as GetHardPullConsent200ResponseDataOfferTypeEnum, type index$1_GetLenderOfferByIdOfferTypeEnum as GetLenderOfferByIdOfferTypeEnum, type index$1_GetPendingFundings200Response as GetPendingFundings200Response, type index$1_GetPlatformPublicKey200Response as GetPlatformPublicKey200Response, type index$1_GetPlatformPublicKey200ResponseData as GetPlatformPublicKey200ResponseData, type index$1_InfraStats as InfraStats, type index$1_InitiateKYCRequest as InitiateKYCRequest, type index$1_KYCHandleRequest as KYCHandleRequest, type index$1_KYCHandleResponse as KYCHandleResponse, type index$1_KYCHandleResponseData as KYCHandleResponseData, type index$1_KYCInitiateResponse as KYCInitiateResponse, type index$1_KYCInitiateResponseData as KYCInitiateResponseData, type index$1_KYCProvidersResponse as KYCProvidersResponse, type index$1_KYCProvidersResponseData as KYCProvidersResponseData, type index$1_KYCProvidersResponseDataProvidersInner as KYCProvidersResponseDataProvidersInner, type index$1_KYCStatusResponse as KYCStatusResponse, type index$1_KYCStatusResponseData as KYCStatusResponseData, type index$1_KYCStatusResponseDataAttestationsInner as KYCStatusResponseDataAttestationsInner, type index$1_KYCStatusResponseDataStatusEnum as KYCStatusResponseDataStatusEnum, type index$1_KeyHistoryResponse as KeyHistoryResponse, type index$1_KeyHistoryResponseData as KeyHistoryResponseData, type index$1_KeyHistoryResponseDataKeysInner as KeyHistoryResponseDataKeysInner, type index$1_KeyHistoryResponseDataKeysInnerStatusEnum as KeyHistoryResponseDataKeysInnerStatusEnum, index$1_KeyManagementApi as KeyManagementApi, index$1_KeyManagementApiAxiosParamCreator as KeyManagementApiAxiosParamCreator, type index$1_KeyManagementApiEmergencyRevokeKeyRequest as KeyManagementApiEmergencyRevokeKeyRequest, index$1_KeyManagementApiFactory as KeyManagementApiFactory, index$1_KeyManagementApiFp as KeyManagementApiFp, type index$1_KeyManagementApiInterface as KeyManagementApiInterface, type index$1_KeyManagementApiRotateEntityKeyRequest as KeyManagementApiRotateEntityKeyRequest, type index$1_KeyRevokeResponse as KeyRevokeResponse, type index$1_KeyRevokeResponseData as KeyRevokeResponseData, type index$1_KeyRevokeResponseDataStatusEnum as KeyRevokeResponseDataStatusEnum, type index$1_KeyRotationResponse as KeyRotationResponse, type index$1_KeyRotationResponseData as KeyRotationResponseData, type index$1_KeyRotationResponseDataStatusEnum as KeyRotationResponseDataStatusEnum, type index$1_LenderDetail as LenderDetail, type index$1_LenderDetailPublicKey as LenderDetailPublicKey, type index$1_LenderDetailResponse as LenderDetailResponse, type index$1_LenderDetailResponseData as LenderDetailResponseData, type index$1_LenderListItem as LenderListItem, type index$1_LenderListResponse as LenderListResponse, type index$1_LenderListResponseData as LenderListResponseData, type index$1_LenderOffersResponse as LenderOffersResponse, type index$1_LenderOffersResponseData as LenderOffersResponseData, type index$1_LenderOffersResponseDataPagination as LenderOffersResponseDataPagination, type index$1_LenderPublicKeyResponse as LenderPublicKeyResponse, type index$1_LenderPublicKeyResponseData as LenderPublicKeyResponseData, type index$1_ListApplications200Response as ListApplications200Response, type index$1_ListApplications200ResponseData as ListApplications200ResponseData, type index$1_ListApplicationsProductTypeEnum as ListApplicationsProductTypeEnum, type index$1_ListLenderOffersOfferTypeEnum as ListLenderOffersOfferTypeEnum, type index$1_ListLoanRepayments200Response as ListLoanRepayments200Response, type index$1_ListLoanRepaymentsSourceEnum as ListLoanRepaymentsSourceEnum, type index$1_ListTransfersStateEnum as ListTransfersStateEnum, type index$1_Loan as Loan, type index$1_LoanDisbursement as LoanDisbursement, type index$1_LoanListResponse as LoanListResponse, type index$1_LoanListResponseData as LoanListResponseData, type index$1_LoanListResponseDataPagination as LoanListResponseDataPagination, type index$1_LoanRepayment as LoanRepayment, type index$1_LoanRepaymentStatusEnum as LoanRepaymentStatusEnum, type index$1_LoanResponse as LoanResponse, type index$1_LoanState as LoanState, type index$1_LoanStateOverrideRequest as LoanStateOverrideRequest, type index$1_LoanStatus as LoanStatus, type index$1_LoanSweepRequest as LoanSweepRequest, type index$1_LoanSweepResponse as LoanSweepResponse, type index$1_LoanSweepResponseLoan as LoanSweepResponseLoan, type index$1_LoanSweepResponseTransfer as LoanSweepResponseTransfer, type index$1_LoanSweepResponseWallet as LoanSweepResponseWallet, type index$1_LoanTerms as LoanTerms, type index$1_LoanTermsUpdateRequest as LoanTermsUpdateRequest, type index$1_LoanWallet as LoanWallet, type index$1_LoanWalletInfraStatusEnum as LoanWalletInfraStatusEnum, type index$1_LoanWalletResponse as LoanWalletResponse, type index$1_LoanWalletResponseData as LoanWalletResponseData, type index$1_LoanWalletResponseDataLiquidationAddress as LoanWalletResponseDataLiquidationAddress, type index$1_LoanWalletResponseDataLiquidationAddressStatusEnum as LoanWalletResponseDataLiquidationAddressStatusEnum, type index$1_LoanWalletResponseDataLoan as LoanWalletResponseDataLoan, type index$1_LoanWalletResponseDataLoanRepaymentInfraStatusEnum as LoanWalletResponseDataLoanRepaymentInfraStatusEnum, type index$1_LoanWalletResponseDataWallet as LoanWalletResponseDataWallet, index$1_LoansApi as LoansApi, type index$1_LoansApiApplyLenderOverrideRequest as LoansApiApplyLenderOverrideRequest, index$1_LoansApiAxiosParamCreator as LoansApiAxiosParamCreator, index$1_LoansApiFactory as LoansApiFactory, index$1_LoansApiFp as LoansApiFp, type index$1_LoansApiGetLoanByApplicationRequest as LoansApiGetLoanByApplicationRequest, type index$1_LoansApiGetLoanRequest as LoansApiGetLoanRequest, type index$1_LoansApiGetLoanWalletRequest as LoansApiGetLoanWalletRequest, type index$1_LoansApiGetPaymentScheduleRequest as LoansApiGetPaymentScheduleRequest, type index$1_LoansApiInterface as LoansApiInterface, type index$1_LoansApiListLoanRepaymentsRequest as LoansApiListLoanRepaymentsRequest, type index$1_LoansApiListLoansRequest as LoansApiListLoansRequest, type index$1_LoansApiSweepLoanWalletRequest as LoansApiSweepLoanWalletRequest, type index$1_LoansApiUpdateLoanTermsRequest as LoansApiUpdateLoanTermsRequest, type index$1_MainWallet as MainWallet, type index$1_ModelError as ModelError, type index$1_NeobankAccountResponse as NeobankAccountResponse, type index$1_NeobankAccountResponseData as NeobankAccountResponseData, type index$1_NeobankDetailResponse as NeobankDetailResponse, type index$1_NeobankDetailResponseData as NeobankDetailResponseData, type index$1_NeobankListItem as NeobankListItem, type index$1_NeobankListResponse as NeobankListResponse, type index$1_NeobankListResponseData as NeobankListResponseData, type index$1_NeobankListResponseDataPagination as NeobankListResponseDataPagination, type index$1_NeobankPublicKeyResponse as NeobankPublicKeyResponse, type index$1_NeobankPublicKeyResponseData as NeobankPublicKeyResponseData, index$1_NeobankSelfServiceApi as NeobankSelfServiceApi, index$1_NeobankSelfServiceApiAxiosParamCreator as NeobankSelfServiceApiAxiosParamCreator, index$1_NeobankSelfServiceApiFactory as NeobankSelfServiceApiFactory, index$1_NeobankSelfServiceApiFp as NeobankSelfServiceApiFp, type index$1_NeobankSelfServiceApiInterface as NeobankSelfServiceApiInterface, type index$1_NeobankSelfServiceApiUpdateWebhookUrlRequest as NeobankSelfServiceApiUpdateWebhookUrlRequest, type index$1_Offer as Offer, type index$1_OfferAcceptanceRequest as OfferAcceptanceRequest, type index$1_OfferAcceptanceRequestBorrowerWallet as OfferAcceptanceRequestBorrowerWallet, type index$1_OfferAcceptanceRequestBorrowerWalletChainEnum as OfferAcceptanceRequestBorrowerWalletChainEnum, type index$1_OfferAcceptanceRequestBorrowerWalletWalletTypeEnum as OfferAcceptanceRequestBorrowerWalletWalletTypeEnum, type index$1_OfferAcceptanceRequestCommunicationPreferences as OfferAcceptanceRequestCommunicationPreferences, type index$1_OfferAcceptanceRequestHardPullConsent as OfferAcceptanceRequestHardPullConsent, type index$1_OfferAcceptanceRequestRequestedDisbursement as OfferAcceptanceRequestRequestedDisbursement, type index$1_OfferAcceptanceRequestRequestedDisbursementMethodEnum as OfferAcceptanceRequestRequestedDisbursementMethodEnum, type index$1_OfferAcceptanceResponse as OfferAcceptanceResponse, type index$1_OfferAcceptanceResponseData as OfferAcceptanceResponseData, type index$1_OfferAcceptanceResponseDataNextSteps as OfferAcceptanceResponseDataNextSteps, type index$1_OfferAcceptanceResponseDataNextStepsActionEnum as OfferAcceptanceResponseDataNextStepsActionEnum, type index$1_OfferAcceptanceResponseDataOfferTypeEnum as OfferAcceptanceResponseDataOfferTypeEnum, type index$1_OfferAcceptanceResponseDataStatusEnum as OfferAcceptanceResponseDataStatusEnum, type index$1_OfferDetailResponse as OfferDetailResponse, type index$1_OfferDetailResponseData as OfferDetailResponseData, type index$1_OfferDetailResponseDataOffer as OfferDetailResponseDataOffer, type index$1_OfferDetailResponseDataOfferAllOfApplication as OfferDetailResponseDataOfferAllOfApplication, type index$1_OfferDetailResponseDataOfferOfferTypeEnum as OfferDetailResponseDataOfferOfferTypeEnum, type index$1_OfferFeesInner as OfferFeesInner, type index$1_OfferRequest as OfferRequest, type index$1_OfferRequestFeesInner as OfferRequestFeesInner, type index$1_OfferResponse as OfferResponse, type index$1_OfferStatus as OfferStatus, type index$1_OfferSubmissionResponse as OfferSubmissionResponse, type index$1_OfferSubmissionResponseData as OfferSubmissionResponseData, type index$1_OfferSubmissionResponseDataOfferTypeEnum as OfferSubmissionResponseDataOfferTypeEnum, type index$1_OfferSubmissionResponseDataOffersInner as OfferSubmissionResponseDataOffersInner, index$1_OffersApi as OffersApi, type index$1_OffersApiAcceptFinalOfferRequest as OffersApiAcceptFinalOfferRequest, type index$1_OffersApiAcceptPrequalOfferRequest as OffersApiAcceptPrequalOfferRequest, index$1_OffersApiAxiosParamCreator as OffersApiAxiosParamCreator, type index$1_OffersApiConfirmESignCompleteRequest as OffersApiConfirmESignCompleteRequest, index$1_OffersApiFactory as OffersApiFactory, index$1_OffersApiFp as OffersApiFp, type index$1_OffersApiGetESignUrlRequest as OffersApiGetESignUrlRequest, type index$1_OffersApiGetFinalOffersRequest as OffersApiGetFinalOffersRequest, type index$1_OffersApiGetLenderOfferByIdRequest as OffersApiGetLenderOfferByIdRequest, type index$1_OffersApiGetPrequalOffersRequest as OffersApiGetPrequalOffersRequest, type index$1_OffersApiInterface as OffersApiInterface, type index$1_OffersApiListLenderOffersRequest as OffersApiListLenderOffersRequest, type index$1_OffersApiSubmitFinalOffersRequest as OffersApiSubmitFinalOffersRequest, type index$1_OffersApiSubmitPrequalOffersRequest as OffersApiSubmitPrequalOffersRequest, type index$1_OffersResponse as OffersResponse, type index$1_PaymentScheduleResponse as PaymentScheduleResponse, type index$1_PaymentScheduleResponseData as PaymentScheduleResponseData, index$1_PlatformApi as PlatformApi, index$1_PlatformApiAxiosParamCreator as PlatformApiAxiosParamCreator, index$1_PlatformApiFactory as PlatformApiFactory, index$1_PlatformApiFp as PlatformApiFp, type index$1_PlatformApiInterface as PlatformApiInterface, type index$1_PrequalOfferSubmission as PrequalOfferSubmission, type index$1_ProofAccessTokenResponse as ProofAccessTokenResponse, type index$1_ProofAccessTokenResponseData as ProofAccessTokenResponseData, type index$1_ProofAccessTokenResponseDataUsage as ProofAccessTokenResponseDataUsage, index$1_QueueApi as QueueApi, index$1_QueueApiAxiosParamCreator as QueueApiAxiosParamCreator, index$1_QueueApiFactory as QueueApiFactory, index$1_QueueApiFp as QueueApiFp, type index$1_QueueApiGetDeclinedApplicationsRequest as QueueApiGetDeclinedApplicationsRequest, type index$1_QueueApiInterface as QueueApiInterface, type index$1_QueueApplication as QueueApplication, type index$1_QueueApplicationProductTypeEnum as QueueApplicationProductTypeEnum, type index$1_QueueResponse as QueueResponse, type index$1_QueueResponseData as QueueResponseData, type index$1_QueueStatsResponse as QueueStatsResponse, type index$1_QueueStatsResponseData as QueueStatsResponseData, type index$1_Repayment as Repayment, type index$1_RepaymentListResponse as RepaymentListResponse, type index$1_RepaymentListResponseData as RepaymentListResponseData, type index$1_RepaymentListResponseDataPagination as RepaymentListResponseDataPagination, type index$1_RepaymentStatus as RepaymentStatus, type index$1_RotateEntityKeyRequest as RotateEntityKeyRequest, index$1_SDXApi as SDXApi, index$1_SDXApiAxiosParamCreator as SDXApiAxiosParamCreator, index$1_SDXApiFactory as SDXApiFactory, index$1_SDXApiFp as SDXApiFp, type index$1_SDXApiGenerateSDXTokenRequest as SDXApiGenerateSDXTokenRequest, type index$1_SDXApiInterface as SDXApiInterface, type index$1_SDXApiStoreDocumentHandleRequest as SDXApiStoreDocumentHandleRequest, type index$1_SDXApiStoreKYCHandleRequest as SDXApiStoreKYCHandleRequest, type index$1_SDXTokenRequest as SDXTokenRequest, type index$1_SDXTokenRequestActionEnum as SDXTokenRequestActionEnum, type index$1_SDXTokenRequestDocumentTypeEnum as SDXTokenRequestDocumentTypeEnum, type index$1_SDXTokenResponse as SDXTokenResponse, type index$1_SDXTokenResponseData as SDXTokenResponseData, type index$1_ScheduledPayment as ScheduledPayment, index$1_SigningApi as SigningApi, index$1_SigningApiAxiosParamCreator as SigningApiAxiosParamCreator, type index$1_SigningApiCompleteSigningSessionRequest as SigningApiCompleteSigningSessionRequest, type index$1_SigningApiCreateSigningSessionRequest as SigningApiCreateSigningSessionRequest, index$1_SigningApiFactory as SigningApiFactory, index$1_SigningApiFp as SigningApiFp, type index$1_SigningApiGetSigningSessionStatusRequest as SigningApiGetSigningSessionStatusRequest, type index$1_SigningApiGetSigningSessionsByApplicationRequest as SigningApiGetSigningSessionsByApplicationRequest, type index$1_SigningApiInterface as SigningApiInterface, type index$1_SigningSessionCompleteResponse as SigningSessionCompleteResponse, type index$1_SigningSessionCompleteResponseData as SigningSessionCompleteResponseData, type index$1_SigningSessionCompleteResponseDataStatusEnum as SigningSessionCompleteResponseDataStatusEnum, type index$1_SigningSessionCreateResponse as SigningSessionCreateResponse, type index$1_SigningSessionCreateResponseData as SigningSessionCreateResponseData, type index$1_SigningSessionCreateResponseDataStatusEnum as SigningSessionCreateResponseDataStatusEnum, type index$1_SigningSessionStatusResponse as SigningSessionStatusResponse, type index$1_SigningSessionStatusResponseData as SigningSessionStatusResponseData, type index$1_SigningSessionStatusResponseDataStatusEnum as SigningSessionStatusResponseDataStatusEnum, type index$1_SigningSessionsListResponse as SigningSessionsListResponse, type index$1_SigningSessionsListResponseData as SigningSessionsListResponseData, type index$1_SigningSessionsListResponseDataSessionsInner as SigningSessionsListResponseDataSessionsInner, type index$1_SigningSessionsListResponseDataSessionsInnerStatusEnum as SigningSessionsListResponseDataSessionsInnerStatusEnum, type index$1_SweepPreviewResponse as SweepPreviewResponse, type index$1_SweepPreviewResponseData as SweepPreviewResponseData, type index$1_SweepPreviewResponseDataMasterWallet as SweepPreviewResponseDataMasterWallet, type index$1_SweepRequest as SweepRequest, type index$1_SweepResponse as SweepResponse, type index$1_SweepResponseSummary as SweepResponseSummary, type index$1_SweepResult as SweepResult, type index$1_SweepResultStatusEnum as SweepResultStatusEnum, type index$1_SweepSummary as SweepSummary, type index$1_SweepableWallet as SweepableWallet, type index$1_TransferDetail as TransferDetail, type index$1_TransferDetailDestination as TransferDetailDestination, type index$1_TransferDetailReceipt as TransferDetailReceipt, type index$1_TransferDetailReturnDetails as TransferDetailReturnDetails, type index$1_TransferDetailSource as TransferDetailSource, type index$1_TransferDetailStateEnum as TransferDetailStateEnum, type index$1_TransferListResponse as TransferListResponse, type index$1_TransferListResponseData as TransferListResponseData, type index$1_TransferListResponseDataPagination as TransferListResponseDataPagination, type index$1_TransferResponse as TransferResponse, type index$1_TransferSummary as TransferSummary, type index$1_TransferSummaryDestination as TransferSummaryDestination, type index$1_TransferSummarySource as TransferSummarySource, type index$1_TransferSummaryStateEnum as TransferSummaryStateEnum, index$1_TransfersApi as TransfersApi, index$1_TransfersApiAxiosParamCreator as TransfersApiAxiosParamCreator, index$1_TransfersApiFactory as TransfersApiFactory, index$1_TransfersApiFp as TransfersApiFp, type index$1_TransfersApiGetTransferRequest as TransfersApiGetTransferRequest, type index$1_TransfersApiInterface as TransfersApiInterface, type index$1_TransfersApiListTransfersRequest as TransfersApiListTransfersRequest, index$1_TreasuryApi as TreasuryApi, index$1_TreasuryApiAxiosParamCreator as TreasuryApiAxiosParamCreator, type index$1_TreasuryApiExecuteSweepRequest as TreasuryApiExecuteSweepRequest, index$1_TreasuryApiFactory as TreasuryApiFactory, index$1_TreasuryApiFp as TreasuryApiFp, type index$1_TreasuryApiGetSweepPreviewRequest as TreasuryApiGetSweepPreviewRequest, type index$1_TreasuryApiGetTreasuryTransactionsRequest as TreasuryApiGetTreasuryTransactionsRequest, type index$1_TreasuryApiInterface as TreasuryApiInterface, type index$1_TreasuryCustomer as TreasuryCustomer, type index$1_TreasuryCustomerKybStatusEnum as TreasuryCustomerKybStatusEnum, type index$1_TreasuryOverviewData as TreasuryOverviewData, type index$1_TreasuryOverviewResponse as TreasuryOverviewResponse, type index$1_TreasuryTransaction as TreasuryTransaction, type index$1_TreasuryTransactionDestination as TreasuryTransactionDestination, type index$1_TreasuryTransactionFees as TreasuryTransactionFees, type index$1_TreasuryTransactionReceipt as TreasuryTransactionReceipt, type index$1_TreasuryTransactionSource as TreasuryTransactionSource, type index$1_TreasuryTransactionTypeEnum as TreasuryTransactionTypeEnum, type index$1_TreasuryTransactionsResponse as TreasuryTransactionsResponse, type index$1_TreasuryTransactionsResponseData as TreasuryTransactionsResponseData, type index$1_TreasuryVirtualAccount as TreasuryVirtualAccount, type index$1_TreasuryVirtualAccountStatusEnum as TreasuryVirtualAccountStatusEnum, type index$1_TreasuryWallet as TreasuryWallet, type index$1_TrustEvaluationResponse as TrustEvaluationResponse, type index$1_TrustEvaluationResponseData as TrustEvaluationResponseData, type index$1_TrustSettingsResponse as TrustSettingsResponse, type index$1_TrustSettingsResponseData as TrustSettingsResponseData, type index$1_TrustSettingsResponseDataSettingsInner as TrustSettingsResponseDataSettingsInner, type index$1_TrustSettingsUpdateResponse as TrustSettingsUpdateResponse, type index$1_TrustSettingsUpdateResponseData as TrustSettingsUpdateResponseData, type index$1_UnsignedDocHandleResponse as UnsignedDocHandleResponse, type index$1_UnsignedDocHandleResponseData as UnsignedDocHandleResponseData, type index$1_UnsignedDocumentHandleRequest as UnsignedDocumentHandleRequest, type index$1_UpdateApplicationStatusRequest as UpdateApplicationStatusRequest, type index$1_ValidationErrorResponse as ValidationErrorResponse, type index$1_ValidationErrorResponseAllOfDetails as ValidationErrorResponseAllOfDetails, type index$1_ValidationErrorResponseErrorEnum as ValidationErrorResponseErrorEnum, type index$1_ValidationErrorResponseStatusEnum as ValidationErrorResponseStatusEnum, type index$1_WalletAggregate as WalletAggregate, type index$1_WalletBalance as WalletBalance, type index$1_WebhookAckResponse as WebhookAckResponse, type index$1_WebhookConfigResponse as WebhookConfigResponse, type index$1_WebhookConfigResponseData as WebhookConfigResponseData, type index$1_WebhookSecretRotateResponse as WebhookSecretRotateResponse, type index$1_WebhookSecretRotateResponseData as WebhookSecretRotateResponseData, type index$1_WebhookTestResponse as WebhookTestResponse, type index$1_WebhookTestResponseData as WebhookTestResponseData, type index$1_WebhookUrlUpdateRequest as WebhookUrlUpdateRequest, type index$1_WebhookUrlUpdateResponse as WebhookUrlUpdateResponse, type index$1_WebhookUrlUpdateResponseData as WebhookUrlUpdateResponseData };
+  export { type index$1_AllWalletsData as AllWalletsData, type index$1_AllWalletsResponse as AllWalletsResponse, type index$1_ApplicationListItem as ApplicationListItem, type index$1_ApplicationListItemProductTypeEnum as ApplicationListItemProductTypeEnum, type index$1_ApplicationRequest as ApplicationRequest, type index$1_ApplicationRequestBorrowerWalletChainEnum as ApplicationRequestBorrowerWalletChainEnum, type index$1_ApplicationRequestEncryptedPayloadsInner as ApplicationRequestEncryptedPayloadsInner, type index$1_ApplicationRequestProductTypeEnum as ApplicationRequestProductTypeEnum, type index$1_ApplicationResponse as ApplicationResponse, type index$1_ApplicationResponseData as ApplicationResponseData, type index$1_ApplicationResponseDataEncryptedPayload as ApplicationResponseDataEncryptedPayload, type index$1_ApplicationResponseDataProductTypeEnum as ApplicationResponseDataProductTypeEnum, type index$1_ApplicationResponseDataWalletTypeEnum as ApplicationResponseDataWalletTypeEnum, type index$1_ApplicationStatus as ApplicationStatus, type index$1_ApplicationStatusResponse as ApplicationStatusResponse, type index$1_ApplicationStatusResponseData as ApplicationStatusResponseData, type index$1_ApplicationStatusUpdateResponse as ApplicationStatusUpdateResponse, type index$1_ApplicationStatusUpdateResponseData as ApplicationStatusUpdateResponseData, type index$1_ApplicationSubmitResponse as ApplicationSubmitResponse, type index$1_ApplicationSubmitResponseData as ApplicationSubmitResponseData, index$1_ApplicationsApi as ApplicationsApi, index$1_ApplicationsApiAxiosParamCreator as ApplicationsApiAxiosParamCreator, type index$1_ApplicationsApiDeclineApplicationRequest as ApplicationsApiDeclineApplicationRequest, index$1_ApplicationsApiFactory as ApplicationsApiFactory, index$1_ApplicationsApiFp as ApplicationsApiFp, type index$1_ApplicationsApiGetApplicationRequest as ApplicationsApiGetApplicationRequest, type index$1_ApplicationsApiGetApplicationStatusRequest as ApplicationsApiGetApplicationStatusRequest, type index$1_ApplicationsApiGetHardPullConsentRequest as ApplicationsApiGetHardPullConsentRequest, type index$1_ApplicationsApiInterface as ApplicationsApiInterface, type index$1_ApplicationsApiListApplicationsRequest as ApplicationsApiListApplicationsRequest, type index$1_ApplicationsApiSubmitApplicationRequest as ApplicationsApiSubmitApplicationRequest, type index$1_ApplicationsApiSubmitDraftApplicationRequest as ApplicationsApiSubmitDraftApplicationRequest, type index$1_ApplicationsApiUpdateApplicationStatusRequest as ApplicationsApiUpdateApplicationStatusRequest, type index$1_Attestation as Attestation, index$1_AttestationApi as AttestationApi, index$1_AttestationApiAxiosParamCreator as AttestationApiAxiosParamCreator, type index$1_AttestationApiConfigureLenderTrustRequest as AttestationApiConfigureLenderTrustRequest, type index$1_AttestationApiEvaluateAttestationTrustRequest as AttestationApiEvaluateAttestationTrustRequest, index$1_AttestationApiFactory as AttestationApiFactory, index$1_AttestationApiFp as AttestationApiFp, type index$1_AttestationApiGetAttestationsRequest as AttestationApiGetAttestationsRequest, type index$1_AttestationApiGetKYCStatusRequest as AttestationApiGetKYCStatusRequest, type index$1_AttestationApiGetProofAccessTokenRequest as AttestationApiGetProofAccessTokenRequest, type index$1_AttestationApiInitiateKYCRequest as AttestationApiInitiateKYCRequest, type index$1_AttestationApiInterface as AttestationApiInterface, type index$1_AttestationApiKycProviderWebhookRequest as AttestationApiKycProviderWebhookRequest, type index$1_AttestationApiStoreAttestationRequest as AttestationApiStoreAttestationRequest, type index$1_AttestationProvider as AttestationProvider, type index$1_AttestationTrustEvaluation as AttestationTrustEvaluation, type index$1_AttestationVerification as AttestationVerification, type index$1_AttestationVerificationStatusEnum as AttestationVerificationStatusEnum, type index$1_AttestationVerificationTypeEnum as AttestationVerificationTypeEnum, type index$1_AttestationsResponse as AttestationsResponse, type index$1_AttestationsResponseData as AttestationsResponseData, type index$1_AttestationsSummary as AttestationsSummary, type index$1_BatchGetLenderPublicKeysRequest as BatchGetLenderPublicKeysRequest, type index$1_BatchGetNeobankPublicKeysRequest as BatchGetNeobankPublicKeysRequest, type index$1_BatchLenderKeysResponse as BatchLenderKeysResponse, type index$1_BatchLenderKeysResponseData as BatchLenderKeysResponseData, type index$1_BatchLenderKeysResponseDataKeysValue as BatchLenderKeysResponseDataKeysValue, type index$1_BatchNeobankKeysResponse as BatchNeobankKeysResponse, type index$1_BatchNeobankKeysResponseData as BatchNeobankKeysResponseData, type index$1_BatchNeobankKeysResponseDataKeysValue as BatchNeobankKeysResponseDataKeysValue, type index$1_BridgeRepayment as BridgeRepayment, type index$1_BridgeRepaymentListResponse as BridgeRepaymentListResponse, type index$1_BridgeRepaymentListResponseData as BridgeRepaymentListResponseData, type index$1_BridgeRepaymentListResponseDataPagination as BridgeRepaymentListResponseDataPagination, type index$1_BridgeRepaymentListResponseDataSummary as BridgeRepaymentListResponseDataSummary, type index$1_BridgeRepaymentReceipt as BridgeRepaymentReceipt, type index$1_Chain as Chain, type index$1_CompleteSigningSessionRequest as CompleteSigningSessionRequest, Configuration$1 as Configuration, type ConfigurationParameters$1 as ConfigurationParameters, type index$1_ConfirmESignComplete200Response as ConfirmESignComplete200Response, type index$1_ConfirmESignComplete200ResponseData as ConfirmESignComplete200ResponseData, type index$1_ConfirmESignComplete200ResponseDataStatusEnum as ConfirmESignComplete200ResponseDataStatusEnum, type index$1_ConsentToFunding200Response as ConsentToFunding200Response, type index$1_ConsentToFunding200ResponseData as ConsentToFunding200ResponseData, type index$1_CreateSigningSessionRequest as CreateSigningSessionRequest, type index$1_CreateWalletRequest as CreateWalletRequest, type index$1_DeclineApplication200Response as DeclineApplication200Response, type index$1_DeclineApplication200ResponseData as DeclineApplication200ResponseData, type index$1_DeclineApplication200ResponseDataStatusEnum as DeclineApplication200ResponseDataStatusEnum, type index$1_DeclineApplicationRequest as DeclineApplicationRequest, type index$1_DeclineFunding200Response as DeclineFunding200Response, type index$1_DeclineFunding200ResponseData as DeclineFunding200ResponseData, type index$1_DeclineFundingRequest as DeclineFundingRequest, type index$1_DeclinedApplicationsResponse as DeclinedApplicationsResponse, type index$1_DeclinedApplicationsResponseData as DeclinedApplicationsResponseData, type index$1_DeclinedApplicationsResponseDataApplicationsInner as DeclinedApplicationsResponseDataApplicationsInner, type index$1_DeclinedApplicationsResponseDataApplicationsInnerProductTypeEnum as DeclinedApplicationsResponseDataApplicationsInnerProductTypeEnum, type index$1_DeclinedApplicationsResponseDataPagination as DeclinedApplicationsResponseDataPagination, type index$1_DraftSubmitRequest as DraftSubmitRequest, type index$1_DraftSubmitRequestPerLenderKycHandlesInner as DraftSubmitRequestPerLenderKycHandlesInner, type index$1_DraftSubmitResponse as DraftSubmitResponse, type index$1_DraftSubmitResponseData as DraftSubmitResponseData, type index$1_EmergencyRevokeKeyRequest as EmergencyRevokeKeyRequest, type index$1_EmergencyRevokeKeyRequestReasonEnum as EmergencyRevokeKeyRequestReasonEnum, type index$1_EncryptedOffer as EncryptedOffer, type index$1_EncryptedOfferOfferTypeEnum as EncryptedOfferOfferTypeEnum, type index$1_EncryptedOfferSubmission as EncryptedOfferSubmission, type index$1_EncryptedOffersResponse as EncryptedOffersResponse, type index$1_EncryptedOffersResponseData as EncryptedOffersResponseData, type index$1_EncryptedOffersResponseDataLendersInner as EncryptedOffersResponseDataLendersInner, type index$1_EncryptedOffersResponseDataOfferTypeEnum as EncryptedOffersResponseDataOfferTypeEnum, index$1_EntityDiscoveryApi as EntityDiscoveryApi, index$1_EntityDiscoveryApiAxiosParamCreator as EntityDiscoveryApiAxiosParamCreator, type index$1_EntityDiscoveryApiBatchGetLenderPublicKeysRequest as EntityDiscoveryApiBatchGetLenderPublicKeysRequest, type index$1_EntityDiscoveryApiBatchGetNeobankPublicKeysRequest as EntityDiscoveryApiBatchGetNeobankPublicKeysRequest, index$1_EntityDiscoveryApiFactory as EntityDiscoveryApiFactory, index$1_EntityDiscoveryApiFp as EntityDiscoveryApiFp, type index$1_EntityDiscoveryApiGetLenderDetailsRequest as EntityDiscoveryApiGetLenderDetailsRequest, type index$1_EntityDiscoveryApiGetLenderPublicKeyRequest as EntityDiscoveryApiGetLenderPublicKeyRequest, type index$1_EntityDiscoveryApiGetNeobankDetailsRequest as EntityDiscoveryApiGetNeobankDetailsRequest, type index$1_EntityDiscoveryApiGetNeobankPublicKeyRequest as EntityDiscoveryApiGetNeobankPublicKeyRequest, type index$1_EntityDiscoveryApiInterface as EntityDiscoveryApiInterface, type index$1_EntityDiscoveryApiListLendersRequest as EntityDiscoveryApiListLendersRequest, type index$1_EntityDiscoveryApiListNeobanksForLendersRequest as EntityDiscoveryApiListNeobanksForLendersRequest, type index$1_ErrorDetailsInner as ErrorDetailsInner, type ErrorResponse$1 as ErrorResponse, type index$1_FinalOfferSubmission as FinalOfferSubmission, type index$1_FinalOfferSubmissionOffersInner as FinalOfferSubmissionOffersInner, index$1_FundingApi as FundingApi, index$1_FundingApiAxiosParamCreator as FundingApiAxiosParamCreator, type index$1_FundingApiConsentToFundingRequest as FundingApiConsentToFundingRequest, type index$1_FundingApiDeclineFundingRequest as FundingApiDeclineFundingRequest, index$1_FundingApiFactory as FundingApiFactory, index$1_FundingApiFp as FundingApiFp, type index$1_FundingApiGetFundingByIdRequest as FundingApiGetFundingByIdRequest, type index$1_FundingApiInterface as FundingApiInterface, type index$1_FundingRecord as FundingRecord, type index$1_FundingRecordApplication as FundingRecordApplication, type index$1_FundingRecordStatusEnum as FundingRecordStatusEnum, type index$1_GetAccountStats200Response as GetAccountStats200Response, type index$1_GetAccountStats200ResponseData as GetAccountStats200ResponseData, type index$1_GetAccountStats200ResponseDataApplications as GetAccountStats200ResponseDataApplications, type index$1_GetAccountStats200ResponseDataBorrowers as GetAccountStats200ResponseDataBorrowers, type index$1_GetAccountStats200ResponseDataLoans as GetAccountStats200ResponseDataLoans, type index$1_GetESignUrl200Response as GetESignUrl200Response, type index$1_GetESignUrl200ResponseData as GetESignUrl200ResponseData, type index$1_GetESignUrl200ResponseDataDocumentsInner as GetESignUrl200ResponseDataDocumentsInner, type index$1_GetESignUrl200ResponseDataEmbedMode as GetESignUrl200ResponseDataEmbedMode, type index$1_GetFundingById200Response as GetFundingById200Response, type index$1_GetHardPullConsent200Response as GetHardPullConsent200Response, type index$1_GetHardPullConsent200ResponseData as GetHardPullConsent200ResponseData, type index$1_GetHardPullConsent200ResponseDataConsent as GetHardPullConsent200ResponseDataConsent, type index$1_GetHardPullConsent200ResponseDataOfferTypeEnum as GetHardPullConsent200ResponseDataOfferTypeEnum, type index$1_GetLenderOfferByIdOfferTypeEnum as GetLenderOfferByIdOfferTypeEnum, type index$1_GetPendingFundings200Response as GetPendingFundings200Response, type index$1_GetPlatformPublicKey200Response as GetPlatformPublicKey200Response, type index$1_GetPlatformPublicKey200ResponseData as GetPlatformPublicKey200ResponseData, type index$1_InfraStats as InfraStats, type index$1_InitiateKYCRequest as InitiateKYCRequest, type index$1_InitiateVerificationRequest as InitiateVerificationRequest, type index$1_KYCHandleRequest as KYCHandleRequest, type index$1_KYCHandleResponse as KYCHandleResponse, type index$1_KYCHandleResponseData as KYCHandleResponseData, type index$1_KYCInitiateResponse as KYCInitiateResponse, type index$1_KYCInitiateResponseData as KYCInitiateResponseData, type index$1_KYCProvidersResponse as KYCProvidersResponse, type index$1_KYCProvidersResponseData as KYCProvidersResponseData, type index$1_KYCProvidersResponseDataProvidersInner as KYCProvidersResponseDataProvidersInner, type index$1_KYCStatusResponse as KYCStatusResponse, type index$1_KYCStatusResponseData as KYCStatusResponseData, type index$1_KYCStatusResponseDataAttestationsInner as KYCStatusResponseDataAttestationsInner, type index$1_KYCStatusResponseDataStatusEnum as KYCStatusResponseDataStatusEnum, type index$1_KeyHistoryResponse as KeyHistoryResponse, type index$1_KeyHistoryResponseData as KeyHistoryResponseData, type index$1_KeyHistoryResponseDataKeysInner as KeyHistoryResponseDataKeysInner, type index$1_KeyHistoryResponseDataKeysInnerStatusEnum as KeyHistoryResponseDataKeysInnerStatusEnum, index$1_KeyManagementApi as KeyManagementApi, index$1_KeyManagementApiAxiosParamCreator as KeyManagementApiAxiosParamCreator, type index$1_KeyManagementApiEmergencyRevokeKeyRequest as KeyManagementApiEmergencyRevokeKeyRequest, index$1_KeyManagementApiFactory as KeyManagementApiFactory, index$1_KeyManagementApiFp as KeyManagementApiFp, type index$1_KeyManagementApiInterface as KeyManagementApiInterface, type index$1_KeyManagementApiRotateEntityKeyRequest as KeyManagementApiRotateEntityKeyRequest, type index$1_KeyRevokeResponse as KeyRevokeResponse, type index$1_KeyRevokeResponseData as KeyRevokeResponseData, type index$1_KeyRevokeResponseDataStatusEnum as KeyRevokeResponseDataStatusEnum, type index$1_KeyRotationResponse as KeyRotationResponse, type index$1_KeyRotationResponseData as KeyRotationResponseData, type index$1_KeyRotationResponseDataStatusEnum as KeyRotationResponseDataStatusEnum, type index$1_LenderDetail as LenderDetail, type index$1_LenderDetailPublicKey as LenderDetailPublicKey, type index$1_LenderDetailResponse as LenderDetailResponse, type index$1_LenderDetailResponseData as LenderDetailResponseData, type index$1_LenderListItem as LenderListItem, type index$1_LenderListResponse as LenderListResponse, type index$1_LenderListResponseData as LenderListResponseData, type index$1_LenderOffersResponse as LenderOffersResponse, type index$1_LenderOffersResponseData as LenderOffersResponseData, type index$1_LenderOffersResponseDataPagination as LenderOffersResponseDataPagination, type index$1_LenderPublicKeyResponse as LenderPublicKeyResponse, type index$1_LenderPublicKeyResponseData as LenderPublicKeyResponseData, type index$1_ListApplications200Response as ListApplications200Response, type index$1_ListApplications200ResponseData as ListApplications200ResponseData, type index$1_ListApplicationsProductTypeEnum as ListApplicationsProductTypeEnum, type index$1_ListLenderOffersOfferTypeEnum as ListLenderOffersOfferTypeEnum, type index$1_ListLoanRepayments200Response as ListLoanRepayments200Response, type index$1_ListLoanRepaymentsSourceEnum as ListLoanRepaymentsSourceEnum, type index$1_ListTransfersStateEnum as ListTransfersStateEnum, type index$1_Loan as Loan, type index$1_LoanDisbursement as LoanDisbursement, type index$1_LoanListResponse as LoanListResponse, type index$1_LoanListResponseData as LoanListResponseData, type index$1_LoanListResponseDataPagination as LoanListResponseDataPagination, type index$1_LoanRepayment as LoanRepayment, type index$1_LoanRepaymentStatusEnum as LoanRepaymentStatusEnum, type index$1_LoanResponse as LoanResponse, type index$1_LoanState as LoanState, type index$1_LoanStateOverrideRequest as LoanStateOverrideRequest, type index$1_LoanStatus as LoanStatus, type index$1_LoanSweepRequest as LoanSweepRequest, type index$1_LoanSweepResponse as LoanSweepResponse, type index$1_LoanSweepResponseLoan as LoanSweepResponseLoan, type index$1_LoanSweepResponseTransfer as LoanSweepResponseTransfer, type index$1_LoanSweepResponseWallet as LoanSweepResponseWallet, type index$1_LoanTerms as LoanTerms, type index$1_LoanTermsUpdateRequest as LoanTermsUpdateRequest, type index$1_LoanWallet as LoanWallet, type index$1_LoanWalletInfraStatusEnum as LoanWalletInfraStatusEnum, type index$1_LoanWalletResponse as LoanWalletResponse, type index$1_LoanWalletResponseData as LoanWalletResponseData, type index$1_LoanWalletResponseDataLiquidationAddress as LoanWalletResponseDataLiquidationAddress, type index$1_LoanWalletResponseDataLiquidationAddressStatusEnum as LoanWalletResponseDataLiquidationAddressStatusEnum, type index$1_LoanWalletResponseDataLoan as LoanWalletResponseDataLoan, type index$1_LoanWalletResponseDataLoanRepaymentInfraStatusEnum as LoanWalletResponseDataLoanRepaymentInfraStatusEnum, type index$1_LoanWalletResponseDataWallet as LoanWalletResponseDataWallet, index$1_LoansApi as LoansApi, type index$1_LoansApiApplyLenderOverrideRequest as LoansApiApplyLenderOverrideRequest, index$1_LoansApiAxiosParamCreator as LoansApiAxiosParamCreator, index$1_LoansApiFactory as LoansApiFactory, index$1_LoansApiFp as LoansApiFp, type index$1_LoansApiGetLoanByApplicationRequest as LoansApiGetLoanByApplicationRequest, type index$1_LoansApiGetLoanRequest as LoansApiGetLoanRequest, type index$1_LoansApiGetLoanWalletRequest as LoansApiGetLoanWalletRequest, type index$1_LoansApiGetPaymentScheduleRequest as LoansApiGetPaymentScheduleRequest, type index$1_LoansApiInterface as LoansApiInterface, type index$1_LoansApiListLoanRepaymentsRequest as LoansApiListLoanRepaymentsRequest, type index$1_LoansApiListLoansRequest as LoansApiListLoansRequest, type index$1_LoansApiSweepLoanWalletRequest as LoansApiSweepLoanWalletRequest, type index$1_LoansApiUpdateLoanTermsRequest as LoansApiUpdateLoanTermsRequest, type index$1_MainWallet as MainWallet, type index$1_MessageSignChallenge as MessageSignChallenge, type index$1_MessageSignChallengeSigningStandardEnum as MessageSignChallengeSigningStandardEnum, type index$1_ModelError as ModelError, type index$1_NeobankAccountResponse as NeobankAccountResponse, type index$1_NeobankAccountResponseData as NeobankAccountResponseData, type index$1_NeobankDetailResponse as NeobankDetailResponse, type index$1_NeobankDetailResponseData as NeobankDetailResponseData, type index$1_NeobankListItem as NeobankListItem, type index$1_NeobankListResponse as NeobankListResponse, type index$1_NeobankListResponseData as NeobankListResponseData, type index$1_NeobankListResponseDataPagination as NeobankListResponseDataPagination, type index$1_NeobankPublicKeyResponse as NeobankPublicKeyResponse, type index$1_NeobankPublicKeyResponseData as NeobankPublicKeyResponseData, index$1_NeobankSelfServiceApi as NeobankSelfServiceApi, index$1_NeobankSelfServiceApiAxiosParamCreator as NeobankSelfServiceApiAxiosParamCreator, index$1_NeobankSelfServiceApiFactory as NeobankSelfServiceApiFactory, index$1_NeobankSelfServiceApiFp as NeobankSelfServiceApiFp, type index$1_NeobankSelfServiceApiInterface as NeobankSelfServiceApiInterface, type index$1_NeobankSelfServiceApiUpdateWebhookUrlRequest as NeobankSelfServiceApiUpdateWebhookUrlRequest, type index$1_Offer as Offer, type index$1_OfferAcceptanceRequest as OfferAcceptanceRequest, type index$1_OfferAcceptanceRequestBorrowerWallet as OfferAcceptanceRequestBorrowerWallet, type index$1_OfferAcceptanceRequestBorrowerWalletChainEnum as OfferAcceptanceRequestBorrowerWalletChainEnum, type index$1_OfferAcceptanceRequestBorrowerWalletWalletTypeEnum as OfferAcceptanceRequestBorrowerWalletWalletTypeEnum, type index$1_OfferAcceptanceRequestCommunicationPreferences as OfferAcceptanceRequestCommunicationPreferences, type index$1_OfferAcceptanceRequestHardPullConsent as OfferAcceptanceRequestHardPullConsent, type index$1_OfferAcceptanceRequestRequestedDisbursement as OfferAcceptanceRequestRequestedDisbursement, type index$1_OfferAcceptanceRequestRequestedDisbursementMethodEnum as OfferAcceptanceRequestRequestedDisbursementMethodEnum, type index$1_OfferAcceptanceResponse as OfferAcceptanceResponse, type index$1_OfferAcceptanceResponseData as OfferAcceptanceResponseData, type index$1_OfferAcceptanceResponseDataNextSteps as OfferAcceptanceResponseDataNextSteps, type index$1_OfferAcceptanceResponseDataNextStepsActionEnum as OfferAcceptanceResponseDataNextStepsActionEnum, type index$1_OfferAcceptanceResponseDataOfferTypeEnum as OfferAcceptanceResponseDataOfferTypeEnum, type index$1_OfferAcceptanceResponseDataStatusEnum as OfferAcceptanceResponseDataStatusEnum, type index$1_OfferDetailResponse as OfferDetailResponse, type index$1_OfferDetailResponseData as OfferDetailResponseData, type index$1_OfferDetailResponseDataOffer as OfferDetailResponseDataOffer, type index$1_OfferDetailResponseDataOfferAllOfApplication as OfferDetailResponseDataOfferAllOfApplication, type index$1_OfferDetailResponseDataOfferOfferTypeEnum as OfferDetailResponseDataOfferOfferTypeEnum, type index$1_OfferFeesInner as OfferFeesInner, type index$1_OfferRequest as OfferRequest, type index$1_OfferRequestFeesInner as OfferRequestFeesInner, type index$1_OfferResponse as OfferResponse, type index$1_OfferStatus as OfferStatus, type index$1_OfferSubmissionResponse as OfferSubmissionResponse, type index$1_OfferSubmissionResponseData as OfferSubmissionResponseData, type index$1_OfferSubmissionResponseDataOfferTypeEnum as OfferSubmissionResponseDataOfferTypeEnum, type index$1_OfferSubmissionResponseDataOffersInner as OfferSubmissionResponseDataOffersInner, index$1_OffersApi as OffersApi, type index$1_OffersApiAcceptFinalOfferRequest as OffersApiAcceptFinalOfferRequest, type index$1_OffersApiAcceptPrequalOfferRequest as OffersApiAcceptPrequalOfferRequest, index$1_OffersApiAxiosParamCreator as OffersApiAxiosParamCreator, type index$1_OffersApiConfirmESignCompleteRequest as OffersApiConfirmESignCompleteRequest, index$1_OffersApiFactory as OffersApiFactory, index$1_OffersApiFp as OffersApiFp, type index$1_OffersApiGetESignUrlRequest as OffersApiGetESignUrlRequest, type index$1_OffersApiGetFinalOffersRequest as OffersApiGetFinalOffersRequest, type index$1_OffersApiGetLenderOfferByIdRequest as OffersApiGetLenderOfferByIdRequest, type index$1_OffersApiGetPrequalOffersRequest as OffersApiGetPrequalOffersRequest, type index$1_OffersApiInterface as OffersApiInterface, type index$1_OffersApiListLenderOffersRequest as OffersApiListLenderOffersRequest, type index$1_OffersApiSubmitFinalOffersRequest as OffersApiSubmitFinalOffersRequest, type index$1_OffersApiSubmitPrequalOffersRequest as OffersApiSubmitPrequalOffersRequest, type index$1_OffersResponse as OffersResponse, type index$1_PaymentScheduleResponse as PaymentScheduleResponse, type index$1_PaymentScheduleResponseData as PaymentScheduleResponseData, index$1_PlatformApi as PlatformApi, index$1_PlatformApiAxiosParamCreator as PlatformApiAxiosParamCreator, index$1_PlatformApiFactory as PlatformApiFactory, index$1_PlatformApiFp as PlatformApiFp, type index$1_PlatformApiInterface as PlatformApiInterface, type index$1_PrequalOfferSubmission as PrequalOfferSubmission, type index$1_ProofAccessTokenResponse as ProofAccessTokenResponse, type index$1_ProofAccessTokenResponseData as ProofAccessTokenResponseData, type index$1_ProofAccessTokenResponseDataUsage as ProofAccessTokenResponseDataUsage, index$1_QueueApi as QueueApi, index$1_QueueApiAxiosParamCreator as QueueApiAxiosParamCreator, index$1_QueueApiFactory as QueueApiFactory, index$1_QueueApiFp as QueueApiFp, type index$1_QueueApiGetDeclinedApplicationsRequest as QueueApiGetDeclinedApplicationsRequest, type index$1_QueueApiInterface as QueueApiInterface, type index$1_QueueApplication as QueueApplication, type index$1_QueueApplicationProductTypeEnum as QueueApplicationProductTypeEnum, type index$1_QueueResponse as QueueResponse, type index$1_QueueResponseData as QueueResponseData, type index$1_QueueStatsResponse as QueueStatsResponse, type index$1_QueueStatsResponseData as QueueStatsResponseData, type index$1_Repayment as Repayment, type index$1_RepaymentListResponse as RepaymentListResponse, type index$1_RepaymentListResponseData as RepaymentListResponseData, type index$1_RepaymentListResponseDataPagination as RepaymentListResponseDataPagination, type index$1_RepaymentStatus as RepaymentStatus, type index$1_RotateEntityKeyRequest as RotateEntityKeyRequest, index$1_SDXApi as SDXApi, index$1_SDXApiAxiosParamCreator as SDXApiAxiosParamCreator, index$1_SDXApiFactory as SDXApiFactory, index$1_SDXApiFp as SDXApiFp, type index$1_SDXApiGenerateSDXTokenRequest as SDXApiGenerateSDXTokenRequest, type index$1_SDXApiInterface as SDXApiInterface, type index$1_SDXApiStoreDocumentHandleRequest as SDXApiStoreDocumentHandleRequest, type index$1_SDXApiStoreKYCHandleRequest as SDXApiStoreKYCHandleRequest, type index$1_SDXTokenRequest as SDXTokenRequest, type index$1_SDXTokenRequestActionEnum as SDXTokenRequestActionEnum, type index$1_SDXTokenRequestDocumentTypeEnum as SDXTokenRequestDocumentTypeEnum, type index$1_SDXTokenResponse as SDXTokenResponse, type index$1_SDXTokenResponseData as SDXTokenResponseData, type index$1_ScheduledPayment as ScheduledPayment, index$1_SigningApi as SigningApi, index$1_SigningApiAxiosParamCreator as SigningApiAxiosParamCreator, type index$1_SigningApiCompleteSigningSessionRequest as SigningApiCompleteSigningSessionRequest, type index$1_SigningApiCreateSigningSessionRequest as SigningApiCreateSigningSessionRequest, index$1_SigningApiFactory as SigningApiFactory, index$1_SigningApiFp as SigningApiFp, type index$1_SigningApiGetSigningSessionStatusRequest as SigningApiGetSigningSessionStatusRequest, type index$1_SigningApiGetSigningSessionsByApplicationRequest as SigningApiGetSigningSessionsByApplicationRequest, type index$1_SigningApiInterface as SigningApiInterface, type index$1_SigningSessionCompleteResponse as SigningSessionCompleteResponse, type index$1_SigningSessionCompleteResponseData as SigningSessionCompleteResponseData, type index$1_SigningSessionCompleteResponseDataStatusEnum as SigningSessionCompleteResponseDataStatusEnum, type index$1_SigningSessionCreateResponse as SigningSessionCreateResponse, type index$1_SigningSessionCreateResponseData as SigningSessionCreateResponseData, type index$1_SigningSessionCreateResponseDataStatusEnum as SigningSessionCreateResponseDataStatusEnum, type index$1_SigningSessionStatusResponse as SigningSessionStatusResponse, type index$1_SigningSessionStatusResponseData as SigningSessionStatusResponseData, type index$1_SigningSessionStatusResponseDataStatusEnum as SigningSessionStatusResponseDataStatusEnum, type index$1_SigningSessionsListResponse as SigningSessionsListResponse, type index$1_SigningSessionsListResponseData as SigningSessionsListResponseData, type index$1_SigningSessionsListResponseDataSessionsInner as SigningSessionsListResponseDataSessionsInner, type index$1_SigningSessionsListResponseDataSessionsInnerStatusEnum as SigningSessionsListResponseDataSessionsInnerStatusEnum, type index$1_SubmitProofRequest as SubmitProofRequest, type index$1_SweepPreviewResponse as SweepPreviewResponse, type index$1_SweepPreviewResponseData as SweepPreviewResponseData, type index$1_SweepPreviewResponseDataMasterWallet as SweepPreviewResponseDataMasterWallet, type index$1_SweepRequest as SweepRequest, type index$1_SweepResponse as SweepResponse, type index$1_SweepResponseSummary as SweepResponseSummary, type index$1_SweepResult as SweepResult, type index$1_SweepResultStatusEnum as SweepResultStatusEnum, type index$1_SweepSummary as SweepSummary, type index$1_SweepableWallet as SweepableWallet, type index$1_TransferDetail as TransferDetail, type index$1_TransferDetailDestination as TransferDetailDestination, type index$1_TransferDetailReceipt as TransferDetailReceipt, type index$1_TransferDetailReturnDetails as TransferDetailReturnDetails, type index$1_TransferDetailSource as TransferDetailSource, type index$1_TransferDetailStateEnum as TransferDetailStateEnum, type index$1_TransferListResponse as TransferListResponse, type index$1_TransferListResponseData as TransferListResponseData, type index$1_TransferListResponseDataPagination as TransferListResponseDataPagination, type index$1_TransferResponse as TransferResponse, type index$1_TransferSummary as TransferSummary, type index$1_TransferSummaryDestination as TransferSummaryDestination, type index$1_TransferSummarySource as TransferSummarySource, type index$1_TransferSummaryStateEnum as TransferSummaryStateEnum, index$1_TransfersApi as TransfersApi, index$1_TransfersApiAxiosParamCreator as TransfersApiAxiosParamCreator, index$1_TransfersApiFactory as TransfersApiFactory, index$1_TransfersApiFp as TransfersApiFp, type index$1_TransfersApiGetTransferRequest as TransfersApiGetTransferRequest, type index$1_TransfersApiInterface as TransfersApiInterface, type index$1_TransfersApiListTransfersRequest as TransfersApiListTransfersRequest, index$1_TreasuryApi as TreasuryApi, index$1_TreasuryApiAxiosParamCreator as TreasuryApiAxiosParamCreator, type index$1_TreasuryApiExecuteSweepRequest as TreasuryApiExecuteSweepRequest, index$1_TreasuryApiFactory as TreasuryApiFactory, index$1_TreasuryApiFp as TreasuryApiFp, type index$1_TreasuryApiGetSweepPreviewRequest as TreasuryApiGetSweepPreviewRequest, type index$1_TreasuryApiGetTreasuryTransactionsRequest as TreasuryApiGetTreasuryTransactionsRequest, type index$1_TreasuryApiInterface as TreasuryApiInterface, type index$1_TreasuryCustomer as TreasuryCustomer, type index$1_TreasuryCustomerKybStatusEnum as TreasuryCustomerKybStatusEnum, type index$1_TreasuryOverviewData as TreasuryOverviewData, type index$1_TreasuryOverviewResponse as TreasuryOverviewResponse, type index$1_TreasuryTransaction as TreasuryTransaction, type index$1_TreasuryTransactionDestination as TreasuryTransactionDestination, type index$1_TreasuryTransactionFees as TreasuryTransactionFees, type index$1_TreasuryTransactionReceipt as TreasuryTransactionReceipt, type index$1_TreasuryTransactionSource as TreasuryTransactionSource, type index$1_TreasuryTransactionTypeEnum as TreasuryTransactionTypeEnum, type index$1_TreasuryTransactionsResponse as TreasuryTransactionsResponse, type index$1_TreasuryTransactionsResponseData as TreasuryTransactionsResponseData, type index$1_TreasuryVirtualAccount as TreasuryVirtualAccount, type index$1_TreasuryVirtualAccountStatusEnum as TreasuryVirtualAccountStatusEnum, type index$1_TreasuryWallet as TreasuryWallet, type index$1_TrustEvaluationResponse as TrustEvaluationResponse, type index$1_TrustEvaluationResponseData as TrustEvaluationResponseData, type index$1_TrustSettingsResponse as TrustSettingsResponse, type index$1_TrustSettingsResponseData as TrustSettingsResponseData, type index$1_TrustSettingsResponseDataSettingsInner as TrustSettingsResponseDataSettingsInner, type index$1_TrustSettingsUpdateResponse as TrustSettingsUpdateResponse, type index$1_TrustSettingsUpdateResponseData as TrustSettingsUpdateResponseData, type index$1_UnsignedDocHandleResponse as UnsignedDocHandleResponse, type index$1_UnsignedDocHandleResponseData as UnsignedDocHandleResponseData, type index$1_UnsignedDocumentHandleRequest as UnsignedDocumentHandleRequest, type index$1_UpdateApplicationStatusRequest as UpdateApplicationStatusRequest, type index$1_UpdateWalletRequest as UpdateWalletRequest, type index$1_ValidationErrorResponse as ValidationErrorResponse, type index$1_ValidationErrorResponseAllOfDetails as ValidationErrorResponseAllOfDetails, type index$1_ValidationErrorResponseErrorEnum as ValidationErrorResponseErrorEnum, type index$1_ValidationErrorResponseStatusEnum as ValidationErrorResponseStatusEnum, type index$1_VerificationChallengeData as VerificationChallengeData, type index$1_VerificationChallengeResponse as VerificationChallengeResponse, type index$1_VerificationListResponse as VerificationListResponse, type index$1_VerificationListResponseData as VerificationListResponseData, type index$1_VerificationListResponseDataVerificationsInner as VerificationListResponseDataVerificationsInner, type index$1_VerificationProofData as VerificationProofData, type index$1_VerificationProofDataWallet as VerificationProofDataWallet, type index$1_VerificationProofResponse as VerificationProofResponse, type index$1_VerificationStatusData as VerificationStatusData, type index$1_VerificationStatusResponse as VerificationStatusResponse, type index$1_WalletAggregate as WalletAggregate, type index$1_WalletBalance as WalletBalance, type index$1_WalletData as WalletData, type index$1_WalletListResponse as WalletListResponse, type index$1_WalletListResponseData as WalletListResponseData, type index$1_WalletListResponseDataPagination as WalletListResponseDataPagination, type index$1_WalletResponse as WalletResponse, type index$1_WalletType as WalletType, type index$1_WalletVerificationMethod as WalletVerificationMethod, type index$1_WalletVerificationStatus as WalletVerificationStatus, index$1_WalletsApi as WalletsApi, index$1_WalletsApiAxiosParamCreator as WalletsApiAxiosParamCreator, type index$1_WalletsApiCreateWalletRequest as WalletsApiCreateWalletRequest, index$1_WalletsApiFactory as WalletsApiFactory, index$1_WalletsApiFp as WalletsApiFp, type index$1_WalletsApiGetVerificationRequest as WalletsApiGetVerificationRequest, type index$1_WalletsApiGetWalletRequest as WalletsApiGetWalletRequest, type index$1_WalletsApiInitiateWalletVerificationRequest as WalletsApiInitiateWalletVerificationRequest, type index$1_WalletsApiInterface as WalletsApiInterface, type index$1_WalletsApiListWalletVerificationsRequest as WalletsApiListWalletVerificationsRequest, type index$1_WalletsApiListWalletsRequest as WalletsApiListWalletsRequest, type index$1_WalletsApiSubmitVerificationProofRequest as WalletsApiSubmitVerificationProofRequest, type index$1_WalletsApiUpdateWalletRequest as WalletsApiUpdateWalletRequest, type index$1_WebhookAckResponse as WebhookAckResponse, type index$1_WebhookConfigResponse as WebhookConfigResponse, type index$1_WebhookConfigResponseData as WebhookConfigResponseData, type index$1_WebhookSecretRotateResponse as WebhookSecretRotateResponse, type index$1_WebhookSecretRotateResponseData as WebhookSecretRotateResponseData, type index$1_WebhookTestResponse as WebhookTestResponse, type index$1_WebhookTestResponseData as WebhookTestResponseData, type index$1_WebhookUrlUpdateRequest as WebhookUrlUpdateRequest, type index$1_WebhookUrlUpdateResponse as WebhookUrlUpdateResponse, type index$1_WebhookUrlUpdateResponseData as WebhookUrlUpdateResponseData };
 }
 
 /**
@@ -14619,4 +15833,4 @@ declare namespace index {
   export { index_BlobsApi as BlobsApi, index_BlobsApiAxiosParamCreator as BlobsApiAxiosParamCreator, type index_BlobsApiDownloadBlobRequest as BlobsApiDownloadBlobRequest, index_BlobsApiFactory as BlobsApiFactory, index_BlobsApiFp as BlobsApiFp, type index_BlobsApiInterface as BlobsApiInterface, type index_BlobsApiUploadBlobRequest as BlobsApiUploadBlobRequest, index_Configuration as Configuration, type index_ConfigurationParameters as ConfigurationParameters, type index_ErrorResponse as ErrorResponse, index_HealthApi as HealthApi, index_HealthApiAxiosParamCreator as HealthApiAxiosParamCreator, index_HealthApiFactory as HealthApiFactory, index_HealthApiFp as HealthApiFp, type index_HealthApiInterface as HealthApiInterface, type index_HealthCheckResponse as HealthCheckResponse, type index_HealthCheckResponseChecks as HealthCheckResponseChecks, type index_HealthCheckResponseStatusEnum as HealthCheckResponseStatusEnum, type index_LivenessCheck200Response as LivenessCheck200Response, type index_ReadinessCheck200Response as ReadinessCheck200Response, type index_ReadinessCheck200ResponseChecks as ReadinessCheck200ResponseChecks, type index_ReadinessCheck503Response as ReadinessCheck503Response, type index_ReadinessCheck503ResponseChecks as ReadinessCheck503ResponseChecks, type index_UploadBlob201Response as UploadBlob201Response, type index_UploadResponse as UploadResponse };
 }
 
-export { type AllWalletsData, type AllWalletsResponse, type ApplicationListItem, type ApplicationRequest, type ApplicationRequestEncryptedPayloadsInner, ApplicationRequestProductTypeEnum, type ApplicationResponse, type ApplicationResponseData, ApplicationResponseDataWalletTypeEnum, ApplicationStatus, type ApplicationStatusUpdateResponse, type ApplicationStatusUpdateResponseData, type ApplicationSubmitResponse, type ApplicationSubmitResponseData, ApplicationsApi, type Attestation, AttestationApi, type AttestationProvider, type AttestationTrustEvaluation, type AttestationVerification, AttestationVerificationStatusEnum, AttestationVerificationTypeEnum, type AttestationsResponse, type AttestationsResponseData, type AttestationsSummary, type BatchGetLenderPublicKeysRequest, type BatchGetNeobankPublicKeysRequest, type BatchLenderKeysResponse, type BatchLenderKeysResponseData, type BatchLenderKeysResponseDataKeysValue, type BatchNeobankKeysResponse, type BatchNeobankKeysResponseData, type BatchNeobankKeysResponseDataKeysValue, BlobsApi, type CompleteSigningSessionRequest, Configuration$1 as Configuration, type ConsentToFunding200Response, type ConsentToFunding200ResponseData, type CreateSigningSessionRequest, type DeclineFunding200Response, type DeclineFunding200ResponseData, type DeclineFundingRequest, type DraftSubmitRequest, type DraftSubmitRequestPerLenderKycHandlesInner, type DraftSubmitResponse, type DraftSubmitResponseData, type EmergencyRevokeKeyRequest, EmergencyRevokeKeyRequestReasonEnum, type EncryptedOffer, EncryptedOfferOfferTypeEnum, type EncryptedOffersResponse, type EncryptedOffersResponseData, type EncryptedOffersResponseDataLendersInner, EntityDiscoveryApi, FundingApi, type FundingRecord, type FundingRecordApplication, FundingRecordStatusEnum, type GetFundingById200Response, type GetPendingFundings200Response, HealthApi, type KYCHandleRequest, type KYCHandleResponse, type KYCHandleResponseData, type KYCInitiateResponse, type KYCInitiateResponseData, type KYCProvidersResponse, type KYCProvidersResponseData, type KYCProvidersResponseDataProvidersInner, type KYCStatusResponse, type KYCStatusResponseData, type KYCStatusResponseDataAttestationsInner, KYCStatusResponseDataStatusEnum, type KeyHistoryResponse, type KeyHistoryResponseData, type KeyHistoryResponseDataKeysInner, KeyHistoryResponseDataKeysInnerStatusEnum, KeyManagementApi, type KeyRevokeResponse, type KeyRevokeResponseData, KeyRevokeResponseDataStatusEnum, type KeyRotationResponse, type KeyRotationResponseData, KeyRotationResponseDataStatusEnum, type LenderDetail, type LenderDetailPublicKey, type LenderDetailResponse, type LenderDetailResponseData, type LenderListItem, type LenderListResponse, type LenderListResponseData, type LenderPublicKeyResponse, type LenderPublicKeyResponseData, type ListApplications200Response, type ListApplications200ResponseData, type Loan, type LoanListResponse, type LoanListResponseData, type LoanResponse, LoanStatus, LoansApi, type NeobankAccountResponse, type NeobankAccountResponseData, type NeobankDetailResponse, type NeobankDetailResponseData, type NeobankListItem, type NeobankListResponse, type NeobankListResponseData, type NeobankListResponseDataPagination, type NeobankPublicKeyResponse, type NeobankPublicKeyResponseData, NeobankSelfServiceApi, type OfferAcceptanceRequest, type OfferAcceptanceRequestBorrowerWallet, OfferAcceptanceRequestBorrowerWalletChainEnum, OfferAcceptanceRequestBorrowerWalletWalletTypeEnum, type OfferAcceptanceRequestCommunicationPreferences, type OfferAcceptanceRequestHardPullConsent, type OfferAcceptanceResponse, type OfferAcceptanceResponseData, OffersApi, index$1 as PassageAPI, Configuration$1 as PassageConfiguration, index as PassageSDX, type PaymentScheduleResponse, type PaymentScheduleResponseData, PlatformApi, type ProofAccessTokenResponse, type ProofAccessTokenResponseData, QueueApi, RepaymentStatus, type RotateEntityKeyRequest, SDXApi, type SDXTokenRequest, SDXTokenRequestActionEnum, SDXTokenRequestDocumentTypeEnum, type SDXTokenResponse, type SDXTokenResponseData, type UploadBlob201Response as SDXUploadResponse, type UploadResponse as SDXUploadResponseAlt, type ScheduledPayment, SigningApi, type SigningSessionCompleteResponse, type SigningSessionCompleteResponseData, SigningSessionCompleteResponseDataStatusEnum, type SigningSessionCreateResponse, type SigningSessionCreateResponseData, SigningSessionCreateResponseDataStatusEnum, type SigningSessionStatusResponse, type SigningSessionStatusResponseData, SigningSessionStatusResponseDataStatusEnum, type SigningSessionsListResponse, type SigningSessionsListResponseData, type SigningSessionsListResponseDataSessionsInner, SigningSessionsListResponseDataSessionsInnerStatusEnum, type SweepPreviewResponse, type SweepRequest, type SweepResponse, TransfersApi, TreasuryApi, type TreasuryCustomer, TreasuryCustomerKybStatusEnum, type TreasuryOverviewData, type TreasuryOverviewResponse, type TreasuryTransaction, TreasuryTransactionTypeEnum, type TreasuryTransactionsResponse, type TreasuryTransactionsResponseData, type TreasuryVirtualAccount, TreasuryVirtualAccountStatusEnum, type TreasuryWallet, type TrustEvaluationResponse, type TrustEvaluationResponseData, type TrustSettingsResponse, type TrustSettingsResponseData, type TrustSettingsResponseDataSettingsInner, type TrustSettingsUpdateResponse, type TrustSettingsUpdateResponseData, type WebhookConfigResponse, type WebhookConfigResponseData, type WebhookSecretRotateResponse, type WebhookSecretRotateResponseData, type WebhookTestResponse, type WebhookTestResponseData, type WebhookUrlUpdateResponse, type WebhookUrlUpdateResponseData };
+export { type AllWalletsData, type AllWalletsResponse, type ApplicationListItem, type ApplicationRequest, type ApplicationRequestEncryptedPayloadsInner, ApplicationRequestProductTypeEnum, type ApplicationResponse, type ApplicationResponseData, ApplicationResponseDataWalletTypeEnum, ApplicationStatus, type ApplicationStatusUpdateResponse, type ApplicationStatusUpdateResponseData, type ApplicationSubmitResponse, type ApplicationSubmitResponseData, ApplicationsApi, type Attestation, AttestationApi, type AttestationProvider, type AttestationTrustEvaluation, type AttestationVerification, AttestationVerificationStatusEnum, AttestationVerificationTypeEnum, type AttestationsResponse, type AttestationsResponseData, type AttestationsSummary, type BatchGetLenderPublicKeysRequest, type BatchGetNeobankPublicKeysRequest, type BatchLenderKeysResponse, type BatchLenderKeysResponseData, type BatchLenderKeysResponseDataKeysValue, type BatchNeobankKeysResponse, type BatchNeobankKeysResponseData, type BatchNeobankKeysResponseDataKeysValue, BlobsApi, Chain, type CompleteSigningSessionRequest, Configuration$1 as Configuration, type ConsentToFunding200Response, type ConsentToFunding200ResponseData, type CreateSigningSessionRequest, type CreateWalletRequest, type DeclineFunding200Response, type DeclineFunding200ResponseData, type DeclineFundingRequest, type DraftSubmitRequest, type DraftSubmitRequestPerLenderKycHandlesInner, type DraftSubmitResponse, type DraftSubmitResponseData, type EmergencyRevokeKeyRequest, EmergencyRevokeKeyRequestReasonEnum, type EncryptedOffer, EncryptedOfferOfferTypeEnum, type EncryptedOffersResponse, type EncryptedOffersResponseData, type EncryptedOffersResponseDataLendersInner, EntityDiscoveryApi, FundingApi, type FundingRecord, type FundingRecordApplication, FundingRecordStatusEnum, type GetFundingById200Response, type GetPendingFundings200Response, HealthApi, type InitiateVerificationRequest, type KYCHandleRequest, type KYCHandleResponse, type KYCHandleResponseData, type KYCInitiateResponse, type KYCInitiateResponseData, type KYCProvidersResponse, type KYCProvidersResponseData, type KYCProvidersResponseDataProvidersInner, type KYCStatusResponse, type KYCStatusResponseData, type KYCStatusResponseDataAttestationsInner, KYCStatusResponseDataStatusEnum, type KeyHistoryResponse, type KeyHistoryResponseData, type KeyHistoryResponseDataKeysInner, KeyHistoryResponseDataKeysInnerStatusEnum, KeyManagementApi, type KeyRevokeResponse, type KeyRevokeResponseData, KeyRevokeResponseDataStatusEnum, type KeyRotationResponse, type KeyRotationResponseData, KeyRotationResponseDataStatusEnum, type LenderDetail, type LenderDetailPublicKey, type LenderDetailResponse, type LenderDetailResponseData, type LenderListItem, type LenderListResponse, type LenderListResponseData, type LenderPublicKeyResponse, type LenderPublicKeyResponseData, type ListApplications200Response, type ListApplications200ResponseData, type Loan, type LoanListResponse, type LoanListResponseData, type LoanResponse, LoanStatus, LoansApi, type MessageSignChallenge, type NeobankAccountResponse, type NeobankAccountResponseData, type NeobankDetailResponse, type NeobankDetailResponseData, type NeobankListItem, type NeobankListResponse, type NeobankListResponseData, type NeobankListResponseDataPagination, type NeobankPublicKeyResponse, type NeobankPublicKeyResponseData, NeobankSelfServiceApi, type OfferAcceptanceRequest, type OfferAcceptanceRequestBorrowerWallet, OfferAcceptanceRequestBorrowerWalletChainEnum, OfferAcceptanceRequestBorrowerWalletWalletTypeEnum, type OfferAcceptanceRequestCommunicationPreferences, type OfferAcceptanceRequestHardPullConsent, type OfferAcceptanceResponse, type OfferAcceptanceResponseData, OffersApi, index$1 as PassageAPI, Configuration$1 as PassageConfiguration, index as PassageSDX, type PaymentScheduleResponse, type PaymentScheduleResponseData, PlatformApi, type ProofAccessTokenResponse, type ProofAccessTokenResponseData, QueueApi, RepaymentStatus, type RotateEntityKeyRequest, SDXApi, type SDXTokenRequest, SDXTokenRequestActionEnum, SDXTokenRequestDocumentTypeEnum, type SDXTokenResponse, type SDXTokenResponseData, type UploadBlob201Response as SDXUploadResponse, type UploadResponse as SDXUploadResponseAlt, type ScheduledPayment, SigningApi, type SigningSessionCompleteResponse, type SigningSessionCompleteResponseData, SigningSessionCompleteResponseDataStatusEnum, type SigningSessionCreateResponse, type SigningSessionCreateResponseData, SigningSessionCreateResponseDataStatusEnum, type SigningSessionStatusResponse, type SigningSessionStatusResponseData, SigningSessionStatusResponseDataStatusEnum, type SigningSessionsListResponse, type SigningSessionsListResponseData, type SigningSessionsListResponseDataSessionsInner, SigningSessionsListResponseDataSessionsInnerStatusEnum, type SubmitProofRequest, type SweepPreviewResponse, type SweepRequest, type SweepResponse, TransfersApi, TreasuryApi, type TreasuryCustomer, TreasuryCustomerKybStatusEnum, type TreasuryOverviewData, type TreasuryOverviewResponse, type TreasuryTransaction, TreasuryTransactionTypeEnum, type TreasuryTransactionsResponse, type TreasuryTransactionsResponseData, type TreasuryVirtualAccount, TreasuryVirtualAccountStatusEnum, type TreasuryWallet, type TrustEvaluationResponse, type TrustEvaluationResponseData, type TrustSettingsResponse, type TrustSettingsResponseData, type TrustSettingsResponseDataSettingsInner, type TrustSettingsUpdateResponse, type TrustSettingsUpdateResponseData, type UpdateWalletRequest, type VerificationChallengeData, type VerificationChallengeResponse, type VerificationListResponse, type VerificationProofData, type VerificationProofDataWallet, type VerificationProofResponse, type VerificationStatusData, type VerificationStatusResponse, type WalletData, type WalletListResponse, type WalletListResponseData, type WalletListResponseDataPagination, type WalletResponse, WalletType, WalletVerificationMethod, WalletVerificationStatus, WalletsApi, type WebhookConfigResponse, type WebhookConfigResponseData, type WebhookSecretRotateResponse, type WebhookSecretRotateResponseData, type WebhookTestResponse, type WebhookTestResponseData, type WebhookUrlUpdateResponse, type WebhookUrlUpdateResponseData };

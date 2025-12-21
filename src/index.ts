@@ -39,6 +39,15 @@ export {
   SigningApi,
   TransfersApi,
   TreasuryApi,
+  WalletsApi,
+} from './generated/api';
+
+// Re-export wallet verification enums at top level
+export {
+  WalletType,
+  WalletVerificationMethod,
+  WalletVerificationStatus,
+  Chain,
 } from './generated/api';
 
 // =============================================================================
@@ -254,4 +263,24 @@ export type {
   KYCStatusResponseDataAttestationsInner,
   KYCInitiateResponse,
   KYCInitiateResponseData,
+
+  // Wallet ownership verification types
+  WalletData,
+  WalletResponse,
+  WalletListResponse,
+  WalletListResponseData,
+  WalletListResponseDataPagination,
+  CreateWalletRequest,
+  UpdateWalletRequest,
+  InitiateVerificationRequest,
+  SubmitProofRequest,
+  MessageSignChallenge,
+  VerificationChallengeData,
+  VerificationChallengeResponse,
+  VerificationStatusData,
+  VerificationStatusResponse,
+  VerificationListResponse,
+  VerificationProofData,
+  VerificationProofResponse,
+  VerificationProofDataWallet,
 } from './generated/api';
